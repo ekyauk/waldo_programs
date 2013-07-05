@@ -138,7 +138,7 @@ def User (_waldo_classes,_host_uuid,_conn_obj,*args):
             (self._partner_endpoint_msg_func_call_prefix__waldo__SendMessage(_active_event,_context,message,) if _context.set_msg_send_initialized_bit_false() else None)
 
 
-        def add_to_server(self):
+        def add_to_server(self,inGame):
 
             # ensure that both sides have completed their onCreate calls
             # before continuing
@@ -157,7 +157,7 @@ def User (_waldo_classes,_host_uuid,_conn_obj,*args):
                 # return them....if it were false, might just get back refrences
                 # to Waldo variables, and de-waldo-ifying them outside of the
                 # transaction might return over-written/inconsistent values.
-                _to_return = self._endpoint_func_call_prefix__waldo__add_to_server(_root_event,_ctx ,[])
+                _to_return = self._endpoint_func_call_prefix__waldo__add_to_server(_root_event,_ctx ,inGame,[])
                 # try committing root event
                 _root_event.request_commit()
                 _commit_resp = _root_event.event_complete_queue.get()
@@ -169,19 +169,21 @@ def User (_waldo_classes,_host_uuid,_conn_obj,*args):
 
 
 
-        def _endpoint_func_call_prefix__waldo__add_to_server(self,_active_event,_context,_returning_to_public_ext_array=None):
+        def _endpoint_func_call_prefix__waldo__add_to_server(self,_active_event,_context,inGame,_returning_to_public_ext_array=None):
             if _context.check_and_set_from_endpoint_call_false():
+                inGame = _context.turn_into_waldo_var_if_was_var(inGame,True,_active_event,self._host_uuid,False,False)
 
                 pass
 
             else:
+                inGame = _context.turn_into_waldo_var_if_was_var(inGame,True,_active_event,self._host_uuid,False,False)
 
                 pass
 
-            (self._partner_endpoint_msg_func_call_prefix__waldo__AddUser(_active_event,_context,) if _context.set_msg_send_initialized_bit_false() else None)
+            (self._partner_endpoint_msg_func_call_prefix__waldo__AddUser(_active_event,_context,inGame,) if _context.set_msg_send_initialized_bit_false() else None)
 
 
-        def quit(self):
+        def quit(self,inGame):
 
             # ensure that both sides have completed their onCreate calls
             # before continuing
@@ -200,7 +202,7 @@ def User (_waldo_classes,_host_uuid,_conn_obj,*args):
                 # return them....if it were false, might just get back refrences
                 # to Waldo variables, and de-waldo-ifying them outside of the
                 # transaction might return over-written/inconsistent values.
-                _to_return = self._endpoint_func_call_prefix__waldo__quit(_root_event,_ctx ,[])
+                _to_return = self._endpoint_func_call_prefix__waldo__quit(_root_event,_ctx ,inGame,[])
                 # try committing root event
                 _root_event.request_commit()
                 _commit_resp = _root_event.event_complete_queue.get()
@@ -212,16 +214,18 @@ def User (_waldo_classes,_host_uuid,_conn_obj,*args):
 
 
 
-        def _endpoint_func_call_prefix__waldo__quit(self,_active_event,_context,_returning_to_public_ext_array=None):
+        def _endpoint_func_call_prefix__waldo__quit(self,_active_event,_context,inGame,_returning_to_public_ext_array=None):
             if _context.check_and_set_from_endpoint_call_false():
+                inGame = _context.turn_into_waldo_var_if_was_var(inGame,True,_active_event,self._host_uuid,False,False)
 
                 pass
 
             else:
+                inGame = _context.turn_into_waldo_var_if_was_var(inGame,True,_active_event,self._host_uuid,False,False)
 
                 pass
 
-            (self._partner_endpoint_msg_func_call_prefix__waldo__Quit(_active_event,_context,) if _context.set_msg_send_initialized_bit_false() else None)
+            (self._partner_endpoint_msg_func_call_prefix__waldo__Quit(_active_event,_context,inGame,) if _context.set_msg_send_initialized_bit_false() else None)
 
 
         def private_message(self,receiver,message):
@@ -317,7 +321,7 @@ def User (_waldo_classes,_host_uuid,_conn_obj,*args):
 
         ### User-defined message send blocks ###
 
-        def _partner_endpoint_msg_func_call_prefix__waldo__Quit(self,_active_event,_context,_returning_to_public_ext_array=None):
+        def _partner_endpoint_msg_func_call_prefix__waldo__Quit(self,_active_event,_context,inGame=None,_returning_to_public_ext_array=None):
 
             _first_msg = False
             if not _context.set_msg_send_initialized_bit_true():
@@ -329,9 +333,17 @@ def User (_waldo_classes,_host_uuid,_conn_obj,*args):
                 _first_msg = True
                 if _context.check_and_set_from_endpoint_call_false():
 
+                    _context.sequence_local_store.add_var(
+                        "18__inGame", _context.convert_for_seq_local(inGame,_active_event,self._host_uuid)
+                    )
+
                     pass
 
                 else:
+
+                    _context.sequence_local_store.add_var(
+                        "18__inGame", _context.convert_for_seq_local(inGame,_active_event,self._host_uuid)
+                    )
 
                     pass
 
@@ -373,7 +385,7 @@ def User (_waldo_classes,_host_uuid,_conn_obj,*args):
 
             return 
 
-        def _partner_endpoint_msg_func_call_prefix__waldo__AddUser(self,_active_event,_context,_returning_to_public_ext_array=None):
+        def _partner_endpoint_msg_func_call_prefix__waldo__AddUser(self,_active_event,_context,inGame=None,_returning_to_public_ext_array=None):
 
             _first_msg = False
             if not _context.set_msg_send_initialized_bit_true():
@@ -385,9 +397,17 @@ def User (_waldo_classes,_host_uuid,_conn_obj,*args):
                 _first_msg = True
                 if _context.check_and_set_from_endpoint_call_false():
 
+                    _context.sequence_local_store.add_var(
+                        "21__inGame", _context.convert_for_seq_local(inGame,_active_event,self._host_uuid)
+                    )
+
                     pass
 
                 else:
+
+                    _context.sequence_local_store.add_var(
+                        "21__inGame", _context.convert_for_seq_local(inGame,_active_event,self._host_uuid)
+                    )
 
                     pass
 
@@ -442,11 +462,11 @@ def User (_waldo_classes,_host_uuid,_conn_obj,*args):
                 if _context.check_and_set_from_endpoint_call_false():
 
                     _context.sequence_local_store.add_var(
-                        "21__receiver", _context.convert_for_seq_local(receiver,_active_event,self._host_uuid)
+                        "25__receiver", _context.convert_for_seq_local(receiver,_active_event,self._host_uuid)
                     )
 
                     _context.sequence_local_store.add_var(
-                        "22__message", _context.convert_for_seq_local(message,_active_event,self._host_uuid)
+                        "26__message", _context.convert_for_seq_local(message,_active_event,self._host_uuid)
                     )
 
                     pass
@@ -454,18 +474,18 @@ def User (_waldo_classes,_host_uuid,_conn_obj,*args):
                 else:
 
                     _context.sequence_local_store.add_var(
-                        "21__receiver", _context.convert_for_seq_local(receiver,_active_event,self._host_uuid)
+                        "25__receiver", _context.convert_for_seq_local(receiver,_active_event,self._host_uuid)
                     )
 
                     _context.sequence_local_store.add_var(
-                        "22__message", _context.convert_for_seq_local(message,_active_event,self._host_uuid)
+                        "26__message", _context.convert_for_seq_local(message,_active_event,self._host_uuid)
                     )
 
                     pass
 
                 message_sent = False
                 _context.sequence_local_store.add_var(
-                    "20__message_sent",_context.convert_for_seq_local(message_sent,_active_event,self._host_uuid))
+                    "24__message_sent",_context.convert_for_seq_local(message_sent,_active_event,self._host_uuid))
 
                 pass
 
@@ -517,7 +537,7 @@ def User (_waldo_classes,_host_uuid,_conn_obj,*args):
                 if _context.check_and_set_from_endpoint_call_false():
 
                     _context.sequence_local_store.add_var(
-                        "26__message", _context.convert_for_seq_local(message,_active_event,self._host_uuid)
+                        "30__message", _context.convert_for_seq_local(message,_active_event,self._host_uuid)
                     )
 
                     pass
@@ -525,7 +545,7 @@ def User (_waldo_classes,_host_uuid,_conn_obj,*args):
                 else:
 
                     _context.sequence_local_store.add_var(
-                        "26__message", _context.convert_for_seq_local(message,_active_event,self._host_uuid)
+                        "30__message", _context.convert_for_seq_local(message,_active_event,self._host_uuid)
                     )
 
                     pass
@@ -587,13 +607,13 @@ def User (_waldo_classes,_host_uuid,_conn_obj,*args):
                     pass
 
                 users_list = self._waldo_classes["WaldoSingleThreadListVariable"](  # the type of waldo variable to create
-                    '31__users_list', # variable's name
+                    '35__users_list', # variable's name
                     self._host_uuid, # host uuid var name
                     False,  # if peered, True, otherwise, False
                     
                 )
                 _context.sequence_local_store.add_var(
-                    "31__users_list",_context.convert_for_seq_local(users_list,_active_event,self._host_uuid))
+                    "35__users_list",_context.convert_for_seq_local(users_list,_active_event,self._host_uuid))
 
                 pass
 
@@ -636,12 +656,12 @@ def User (_waldo_classes,_host_uuid,_conn_obj,*args):
 
         def _partner_endpoint_msg_func_call_prefix__waldo__checkSent(self,_active_event,_context,_returning_to_public_ext_array=None):
 
-            if _context.get_val_if_waldo(( not ( _context.get_val_if_waldo(_context.sequence_local_store.get_var_if_exists("20__message_sent"),_active_event) )),_active_event):
-                _tmp0 = (_context.get_val_if_waldo(_context.sequence_local_store.get_var_if_exists("21__receiver"),_active_event) + _context.get_val_if_waldo(' does not exist in chat.' ,_active_event))
-                if not _context.assign(_context.sequence_local_store.get_var_if_exists("22__message"),_tmp0,_active_event):
+            if _context.get_val_if_waldo(( not ( _context.get_val_if_waldo(_context.sequence_local_store.get_var_if_exists("24__message_sent"),_active_event) )),_active_event):
+                _tmp0 = (_context.get_val_if_waldo(_context.sequence_local_store.get_var_if_exists("25__receiver"),_active_event) + _context.get_val_if_waldo(' does not exist in chat.' ,_active_event))
+                if not _context.assign(_context.sequence_local_store.get_var_if_exists("26__message"),_tmp0,_active_event):
                     pass
 
-                _context.call_func_obj(_active_event,_context.global_store.get_var_if_exists("1__print_message"),_context.sequence_local_store.get_var_if_exists("22__message"))
+                _context.call_func_obj(_active_event,_context.global_store.get_var_if_exists("1__print_message"),_context.sequence_local_store.get_var_if_exists("26__message"))
 
                 pass
 
@@ -683,7 +703,7 @@ def User (_waldo_classes,_host_uuid,_conn_obj,*args):
 
         def _partner_endpoint_msg_func_call_prefix__waldo__printMessage(self,_active_event,_context,_returning_to_public_ext_array=None):
 
-            _context.call_func_obj(_active_event,_context.global_store.get_var_if_exists("1__print_message"),_context.sequence_local_store.get_var_if_exists("28__message"))
+            _context.call_func_obj(_active_event,_context.global_store.get_var_if_exists("1__print_message"),_context.sequence_local_store.get_var_if_exists("32__message"))
 
 
 
@@ -724,7 +744,7 @@ def User (_waldo_classes,_host_uuid,_conn_obj,*args):
             _context.call_func_obj(_active_event,_context.global_store.get_var_if_exists("1__print_message"),'Users in chat:' )
             _context.call_func_obj(_active_event,_context.global_store.get_var_if_exists("1__print_message"),'' )
             user = ""
-            for _secret_waldo_for_iter____user in _context.get_for_iter(_context.sequence_local_store.get_var_if_exists("31__users_list"),_active_event):
+            for _secret_waldo_for_iter____user in _context.get_for_iter(_context.sequence_local_store.get_var_if_exists("35__users_list"),_active_event):
                 user = _context.write_val(user,_secret_waldo_for_iter____user,_active_event)
                 _context.call_func_obj(_active_event,_context.global_store.get_var_if_exists("1__print_message"),user)
 
@@ -784,8 +804,8 @@ def UserHelper (_waldo_classes,_host_uuid,_conn_obj,*args):
                 self._waldo_classes["VariableStore"](_host_uuid))
 
             self._global_var_store.add_var(
-                '12__chat_server',self._waldo_classes["WaldoEndpointVariable"](  # the type of waldo variable to create
-                '12__chat_server', # variable's name
+                '14__chat_server',self._waldo_classes["WaldoEndpointVariable"](  # the type of waldo variable to create
+                '14__chat_server', # variable's name
                 _host_uuid, # host uuid var name
                 False,  # if peered, True, otherwise, False
                 
@@ -848,7 +868,7 @@ def UserHelper (_waldo_classes,_host_uuid,_conn_obj,*args):
                 pass
 
             _tmp0 = server
-            if not _context.assign(_context.global_store.get_var_if_exists("12__chat_server"),_tmp0,_active_event):
+            if not _context.assign(_context.global_store.get_var_if_exists("14__chat_server"),_tmp0,_active_event):
                 pass
 
         ### USER DEFINED METHODS ###
@@ -914,7 +934,7 @@ def UserHelper (_waldo_classes,_host_uuid,_conn_obj,*args):
                 if _context.check_and_set_from_endpoint_call_false():
 
                     _context.sequence_local_store.add_var(
-                        "28__message", _context.convert_for_seq_local(message,_active_event,self._host_uuid)
+                        "32__message", _context.convert_for_seq_local(message,_active_event,self._host_uuid)
                     )
 
                     pass
@@ -922,7 +942,7 @@ def UserHelper (_waldo_classes,_host_uuid,_conn_obj,*args):
                 else:
 
                     _context.sequence_local_store.add_var(
-                        "28__message", _context.convert_for_seq_local(message,_active_event,self._host_uuid)
+                        "32__message", _context.convert_for_seq_local(message,_active_event,self._host_uuid)
                     )
 
                     pass
@@ -969,9 +989,30 @@ def UserHelper (_waldo_classes,_host_uuid,_conn_obj,*args):
 
         def _partner_endpoint_msg_func_call_prefix__waldo__notify(self,_active_event,_context,_returning_to_public_ext_array=None):
 
-            message = _context.get_val_if_waldo((_context.get_val_if_waldo(_context.global_store.get_var_if_exists("0__username"),_active_event) + _context.get_val_if_waldo(' has left the chatroom.' ,_active_event)),_active_event)
-            _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("12__chat_server"),_active_event),"broadcastMessage",message,)
-            _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("12__chat_server"),_active_event),"remove_user",_context.global_store.get_var_if_exists("0__username"),)
+            message = ""
+            if _context.get_val_if_waldo(_context.sequence_local_store.get_var_if_exists("18__inGame"),_active_event):
+                _tmp0 = ' is playing a game.' 
+                if not _context.assign(message,_tmp0,_active_event):
+                    message = _tmp0
+
+
+                pass
+
+            else:
+                _tmp0 = ' has left the chatroom.' 
+                if not _context.assign(message,_tmp0,_active_event):
+                    message = _tmp0
+
+
+                pass
+
+
+            _tmp0 = (_context.get_val_if_waldo(_context.global_store.get_var_if_exists("0__username"),_active_event) + _context.get_val_if_waldo(message,_active_event))
+            if not _context.assign(message,_tmp0,_active_event):
+                message = _tmp0
+
+            _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("14__chat_server"),_active_event),"broadcastMessage",message,)
+            _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("14__chat_server"),_active_event),"remove_user",_context.global_store.get_var_if_exists("0__username"),)
 
 
 
@@ -1009,9 +1050,30 @@ def UserHelper (_waldo_classes,_host_uuid,_conn_obj,*args):
 
         def _partner_endpoint_msg_func_call_prefix__waldo__sendServer(self,_active_event,_context,_returning_to_public_ext_array=None):
 
-            message = _context.get_val_if_waldo((_context.get_val_if_waldo(_context.global_store.get_var_if_exists("0__username"),_active_event) + _context.get_val_if_waldo(' has entered the chatroom.' ,_active_event)),_active_event)
-            _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("12__chat_server"),_active_event),"broadcastMessage",message,)
-            _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("12__chat_server"),_active_event),"add_user",_context.global_store.get_var_if_exists("0__username"),self,)
+            message = ""
+            if _context.get_val_if_waldo(_context.sequence_local_store.get_var_if_exists("21__inGame"),_active_event):
+                _tmp0 = ' is back from a game.' 
+                if not _context.assign(message,_tmp0,_active_event):
+                    message = _tmp0
+
+
+                pass
+
+            else:
+                _tmp0 = ' has entered the chatroom.' 
+                if not _context.assign(message,_tmp0,_active_event):
+                    message = _tmp0
+
+
+                pass
+
+
+            _tmp0 = (_context.get_val_if_waldo(_context.global_store.get_var_if_exists("0__username"),_active_event) + _context.get_val_if_waldo(message,_active_event))
+            if not _context.assign(message,_tmp0,_active_event):
+                message = _tmp0
+
+            _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("14__chat_server"),_active_event),"broadcastMessage",message,)
+            _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("14__chat_server"),_active_event),"add_user",_context.global_store.get_var_if_exists("0__username"),self,)
 
 
 
@@ -1049,12 +1111,12 @@ def UserHelper (_waldo_classes,_host_uuid,_conn_obj,*args):
 
         def _partner_endpoint_msg_func_call_prefix__waldo__sendMessage(self,_active_event,_context,_returning_to_public_ext_array=None):
 
-            _tmp0 = (_context.get_val_if_waldo('private message from ' ,_active_event) + _context.get_val_if_waldo((_context.get_val_if_waldo(_context.global_store.get_var_if_exists("0__username"),_active_event) + _context.get_val_if_waldo((_context.get_val_if_waldo(': ' ,_active_event) + _context.get_val_if_waldo(_context.sequence_local_store.get_var_if_exists("22__message"),_active_event)),_active_event)),_active_event))
-            if not _context.assign(_context.sequence_local_store.get_var_if_exists("22__message"),_tmp0,_active_event):
+            _tmp0 = (_context.get_val_if_waldo('private message from ' ,_active_event) + _context.get_val_if_waldo((_context.get_val_if_waldo(_context.global_store.get_var_if_exists("0__username"),_active_event) + _context.get_val_if_waldo((_context.get_val_if_waldo(': ' ,_active_event) + _context.get_val_if_waldo(_context.sequence_local_store.get_var_if_exists("26__message"),_active_event)),_active_event)),_active_event))
+            if not _context.assign(_context.sequence_local_store.get_var_if_exists("26__message"),_tmp0,_active_event):
                 pass
 
-            _tmp0 = _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("12__chat_server"),_active_event),"send_message",_context.sequence_local_store.get_var_if_exists("21__receiver"),_context.sequence_local_store.get_var_if_exists("22__message"),)
-            if not _context.assign(_context.sequence_local_store.get_var_if_exists("20__message_sent"),_tmp0,_active_event):
+            _tmp0 = _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("14__chat_server"),_active_event),"send_message",_context.sequence_local_store.get_var_if_exists("25__receiver"),_context.sequence_local_store.get_var_if_exists("26__message"),)
+            if not _context.assign(_context.sequence_local_store.get_var_if_exists("24__message_sent"),_tmp0,_active_event):
                 pass
 
 
@@ -1094,7 +1156,7 @@ def UserHelper (_waldo_classes,_host_uuid,_conn_obj,*args):
 
         def _partner_endpoint_msg_func_call_prefix__waldo__updateUsers(self,_active_event,_context,_returning_to_public_ext_array=None):
 
-            _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("12__chat_server"),_active_event),"broadcastMessage",_context.sequence_local_store.get_var_if_exists("26__message"),)
+            _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("14__chat_server"),_active_event),"broadcastMessage",_context.sequence_local_store.get_var_if_exists("30__message"),)
 
 
 
@@ -1132,8 +1194,8 @@ def UserHelper (_waldo_classes,_host_uuid,_conn_obj,*args):
 
         def _partner_endpoint_msg_func_call_prefix__waldo__get_list(self,_active_event,_context,_returning_to_public_ext_array=None):
 
-            _tmp0 = _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("12__chat_server"),_active_event),"get_users",)
-            if not _context.assign(_context.sequence_local_store.get_var_if_exists("31__users_list"),_tmp0,_active_event):
+            _tmp0 = _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("14__chat_server"),_active_event),"get_users",)
+            if not _context.assign(_context.sequence_local_store.get_var_if_exists("35__users_list"),_tmp0,_active_event):
                 pass
 
 

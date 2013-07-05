@@ -1,4 +1,4 @@
-game_server
+anagram_server
 
 Endpoint AnagramServer;
 
@@ -32,6 +32,10 @@ AnagramServer {
     return anagram;
   }
 
+  Public Function return_solutions() returns List(element: Text) {
+    return solutions;
+  }
+
   Public Function get_player_count() returns Number {
     return len(players);
   }
@@ -40,23 +44,17 @@ AnagramServer {
     return player_scores;
   }
 
-  Public Function add_score(Text username, Number points) {
+  Public Function add_score(Text username, Number points) returns Number{
     player_scores[username] += points;
+    return player_scores[username];
   }
 
   Public Function add_user(Text username, Endpoint pt) {
     players[username] = pt;
   }
 
-  Public Function check_word(Text word, Text username) returns TrueFalse {
-    if (word in solutions) {
-      player_scores[username] += len(word);
-      Text message = 'Score: ' + toText(player_scores[username]);
-      players[username].get_new_message(message);
-      return True;
-    }
-    players[username].get_new_message(word);
-    return False;
+  Public Function get_score(Text username) returns Number {
+    return player_scores[username];
   }
 
   Public Function remove_user(Text username) {

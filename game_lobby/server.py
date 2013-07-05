@@ -3,7 +3,7 @@ from user_emitted import UserHelper
 from server_emitted import Server
 import sys
 import os
-sys.path.append(os.path.join("../"))
+sys.path.append(os.path.join("../../"))
 from waldo.lib import Waldo
 import time
 HOSTNAME = '127.0.0.1'

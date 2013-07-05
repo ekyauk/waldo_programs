@@ -6,9 +6,10 @@ Endpoint PlayerHelper;
 Sequences {
  GameInSession: Player.doNothing -> PlayerHelper.checkServer;
  AddUser: Player.addName -> PlayerHelper.sendServer;
- SendAnswer: Player.send -> PlayerHelper.checkAnswer; 
+ AddPoints: Player.doNothing -> PlayerHelper.addPoints -> Player.displayMessage; 
  DisplayMessage: PlayerHelper.doNothing -> Player.printMessage;
  GetAnagram: Player.doNothing -> PlayerHelper.setAnagram;
+ GetSolutions: Player.doNothing -> PlayerHelper.setList;
 }
 
 Peered 
@@ -22,6 +23,13 @@ Sequence GetAnagram() returns Text anagram {
     anagram = game_server.return_anagram();
   }
 }
+
+Sequence GetSolutions() returns List (element: Text) solutions{
+  Player.doNothing{}
+  PlayerHelper.setList {
+    solutions = game_server.return_solutions();
+  }
+}
 Sequence GameInSession() returns TrueFalse game_status{
   Player.doNothing {
   }
@@ -31,9 +39,7 @@ Sequence GameInSession() returns TrueFalse game_status{
 }
 
 Sequence AddUser() {
-  Player.doNothing {
-    //List (element: Text) test_list = 
-  
+  Player.doNothing {  
   }
   PlayerHelper.sendServer {
     Text message = username + " has entered the game room.";
@@ -42,10 +48,15 @@ Sequence AddUser() {
   }
 }
 
-Sequence SendAnswer(Text answer) returns TrueFalse valid_answer{
+Sequence AddPoints(Number points) {
+  Text message;
   Player.doNothing{}
-  PlayerHelper.checkAnswer {
-    valid_answer = game_server.check_word(answer, username);
+  PlayerHelper.addPoints {
+    Number score = game_server.add_score(username, points);
+    message = 'Score: ' + toText(score);
+  }
+  Player.displayMessage {
+    print_message(message);
   }
 }
 
@@ -57,7 +68,6 @@ Sequence DisplayMessage(Text message) {
 }
 
 Player {
-  List (element: Text) usedWords;
   Function (in: Text; returns: Nothing) print_message;
   onCreate(Text name, Function (in: Text; returns: Nothing) prntmsg) {
     username = name;
@@ -68,18 +78,16 @@ Player {
     return GetAnagram();
   }
 
+  Public Function get_solutions() returns List(element: Text){
+    return GetSolutions();
+  }
+
   Public Function game_in_session() returns TrueFalse {
     return GameInSession();
   }
 
-  Public Function send_answer(Text answer) {
-    if (answer in usedWords) {
-      print_message("Word already used.");
-    } else if (SendAnswer(answer)) {
-      usedWords.append(answer);
-    } else {
-      print_message(answer + " is not a valid word.");
-    }
+  Public Function add_points(Number points) {
+    AddPoints(points);
   }
 
   Public Function add_to_server() {

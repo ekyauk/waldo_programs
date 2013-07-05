@@ -4,10 +4,10 @@ Endpoint User;
 Endpoint UserHelper;
 
 Sequences {
- AddUser: User.addName -> UserHelper.sendServer;
+ AddUser: User.doNothing -> UserHelper.sendServer;
  SendMessage: User.send -> UserHelper.updateUsers; 
  DisplayMessage: UserHelper.doNothing -> User.printMessage;
- Quit: User.getName -> UserHelper.notify;
+ Quit: User.doNothing -> UserHelper.notify;
  SendPrivate: User.doNothing -> UserHelper.sendMessage -> User.checkSent;
  PrintUsers: User.doNothing -> UserHelper.get_list -> User.print_list;
 }
@@ -17,22 +17,31 @@ Peered
   Text username;
 }
 
-Sequence Quit() {
-  User.addName {
-  }
+Sequence Quit(TrueFalse inGame) {
+  User.doNothing {}
   UserHelper.notify {
-    Text message = username + " has left the chatroom.";
+    Text message;
+    if (inGame) {
+      message = " is playing a game.";
+    } else {
+      message = " has left the chatroom.";
+    }
+    message = username + message;
     chat_server.broadcastMessage(message);
     chat_server.remove_user(username);
   }
 }
 
-Sequence AddUser() {
-  User.setName {
-  
-  }
+Sequence AddUser(TrueFalse inGame) {
+  User.doNothing {}
   UserHelper.sendServer {
-    Text message = username + " has entered the chatroom.";
+    Text message;
+    if (inGame) {
+      message = " is back from a game.";
+    } else {
+      message = " has entered the chatroom.";
+    }
+    message = username + message;
     chat_server.broadcastMessage(message);
     chat_server.add_user(username, self);
   }
@@ -97,12 +106,12 @@ User {
   Public Function send_message(Text message) {
     SendMessage(message);
   }
-  Public Function add_to_server() {
-    AddUser();
+  Public Function add_to_server(TrueFalse inGame) {
+    AddUser(inGame);
   }
 
-  Public Function quit() {
-    Quit();
+  Public Function quit(TrueFalse inGame) {
+    Quit(inGame);
   }
 
   Public Function private_message(Text receiver, Text message) {
@@ -112,6 +121,7 @@ User {
   Public Function print_users() {
     PrintUsers();
   }
+
 }
 
 
