@@ -5,11 +5,14 @@ Endpoint PlayerHelper;
 
 Sequences {
  GameInSession: Player.doNothing -> PlayerHelper.checkServer;
- AddUser: Player.addName -> PlayerHelper.sendServer;
- AddPoints: Player.doNothing -> PlayerHelper.addPoints -> Player.displayMessage; 
+ AddUser: Player.doNothing -> PlayerHelper.sendServer;
+ AddPoints: Player.doNothing -> PlayerHelper.addPoints -> Player.displayMessage;
  DisplayMessage: PlayerHelper.doNothing -> Player.printMessage;
  GetAnagram: Player.doNothing -> PlayerHelper.setAnagram;
  GetSolutions: Player.doNothing -> PlayerHelper.setList;
+ JoinWaiting: Player.doNothing -> PlayerHelper.addPlayer;
+ LeaveWaiting: Player.doNothing -> PlayerHelper.removePlayer;
+ SendToWaiting: Player.doNothing -> PlayerHelper.sendMessage;
 }
 
 Peered 
@@ -42,9 +45,21 @@ Sequence AddUser() {
   Player.doNothing {  
   }
   PlayerHelper.sendServer {
-    Text message = username + " has entered the game room.";
-    game_server.broadcastMessage(message);
-    game_server.add_user(username, self);
+    game_server.add_player(username, self);
+  }
+}
+
+Sequence JoinWaiting() {
+  Player.doNothing {}
+  PlayerHelper.addPlayer {
+     game_server.add_to_waiting(username, self);
+  }
+}
+
+Sequence LeaveWaiting() {
+  Player.doNothing{}
+  PlayerHelper.removePlayer {
+    game_server.remove_from_waiting(username);
   }
 }
 
@@ -64,6 +79,13 @@ Sequence DisplayMessage(Text message) {
   PlayerHelper.doNothing{}
   Player.printMessage {
     print_message(message);
+  }
+}
+
+Sequence SendToWaiting(Text message) {
+  Player.doNothing{}
+  PlayerHelper.sendMessage{
+    game_server.broadcastWaitingMessage(message);
   }
 }
 
@@ -90,10 +112,20 @@ Player {
     AddPoints(points);
   }
 
-  Public Function add_to_server() {
+  Public Function add_to_game() {
     AddUser();
   }
+  Public Function join_waiting_room() {
+    JoinWaiting();
+  }
 
+  Public Function leave_waiting() {
+    LeaveWaiting();
+  }
+  Public Function send_to_waiting(Text message) {
+    message = "from " + username + " in the waiting room: " + message;
+    SendToWaiting(message);
+  }
 }
 
 

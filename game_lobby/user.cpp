@@ -20,14 +20,14 @@ Peered
 Sequence Quit(TrueFalse inGame) {
   User.doNothing {}
   UserHelper.notify {
-    Text message;
+    Text msg;
     if (inGame) {
-      message = " is playing a game.";
+      msg = " is playing a game.";
     } else {
-      message = " has left the chatroom.";
+      msg = " has left the chatroom.";
     }
-    message = username + message;
-    chat_server.broadcastMessage(message);
+    msg = username + msg;
+    chat_server.broadcastMessage(msg);
     chat_server.remove_user(username);
   }
 }
@@ -35,45 +35,45 @@ Sequence Quit(TrueFalse inGame) {
 Sequence AddUser(TrueFalse inGame) {
   User.doNothing {}
   UserHelper.sendServer {
-    Text message;
+    Text msg;
     if (inGame) {
-      message = " is back from a game.";
+      msg = " is back from a game.";
     } else {
-      message = " has entered the chatroom.";
+      msg = " has entered the chatroom.";
     }
-    message = username + message;
-    chat_server.broadcastMessage(message);
+    msg = username + msg;
+    chat_server.broadcastMessage(msg);
     chat_server.add_user(username, self);
   }
 }
 
-Sequence SendPrivate(Text receiver, Text message) {
+Sequence SendPrivate(Text receiver, Text msg) {
   TrueFalse message_sent;
   User.doNothing{}
   UserHelper.sendMessage {
-    message = 'private message from ' + username + ': ' + message;
-    message_sent = chat_server.send_message(receiver, message);
+    msg = 'private message from ' + username + ': ' + msg;
+    message_sent = chat_server.send_message(receiver, msg);
   }
   User.checkSent {
     if (not message_sent) {
-      message = receiver + ' does not exist in chat.';
-      print_message(message);
+      msg = receiver + ' does not exist in chat.';
+      extCopy msg to message;
     }
   }
 }
 
-Sequence SendMessage(Text message) {
+Sequence SendMessage(Text msg) {
   User.send {
   }
   UserHelper.updateUsers{
-    chat_server.broadcastMessage(message);
+    chat_server.broadcastMessage(msg);
   }
 }
 
-Sequence DisplayMessage(Text message) {
+Sequence DisplayMessage(Text msg) {
   UserHelper.doNothing{}
   User.printMessage {
-    print_message(message);
+    extCopy msg to message;
   }
 }
 
@@ -87,24 +87,22 @@ Sequence PrintUsers() {
   }
 
   User.print_list {
-    print_message('Users in chat:');
-    print_message('');
+    extCopy 'Users in chat:' to message;
     for (Text user in users_list) {
-      print_message(user);
+      extCopy user to message;
     }
-    print_message('');
   }
 
 }
 
 User {
-  Function (in: Text; returns: Nothing) print_message;
-  onCreate(Text name, Function (in: Text; returns: Nothing) prntmsg) {
+  External Text message;
+  onCreate(Text name, External Text gui_str) {
     username = name;
-    print_message = prntmsg;
+    extAssign gui_str to message;
   }
-  Public Function send_message(Text message) {
-    SendMessage(message);
+  Public Function send_message(Text msg) {
+    SendMessage(msg);
   }
   Public Function add_to_server(TrueFalse inGame) {
     AddUser(inGame);
@@ -114,8 +112,8 @@ User {
     Quit(inGame);
   }
 
-  Public Function private_message(Text receiver, Text message) {
-    SendPrivate(receiver, message);
+  Public Function private_message(Text receiver, Text msg) {
+    SendPrivate(receiver, msg);
   }
   
   Public Function print_users() {
@@ -130,7 +128,7 @@ UserHelper {
   onCreate(Endpoint server) {
     chat_server = server;
   }
-  Public Function get_new_message(Text message) returns Nothing {
-    DisplayMessage(message);
+  Public Function get_new_message(Text msg) returns Nothing {
+    DisplayMessage(msg);
   }
 }

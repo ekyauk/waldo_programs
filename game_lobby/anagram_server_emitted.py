@@ -18,16 +18,16 @@ def AnagramServer (_waldo_classes,_host_uuid,_conn_obj,*args):
                 self._waldo_classes["VariableStore"](_host_uuid))
 
             self._global_var_store.add_var(
-                '0__players',self._waldo_classes["WaldoMapVariable"](  # the type of waldo variable to create
-                '0__players', # variable's name
+                '0__waiting_room',self._waldo_classes["WaldoMapVariable"](  # the type of waldo variable to create
+                '0__waiting_room', # variable's name
                 _host_uuid, # host uuid var name
                 False,  # if peered, True, otherwise, False
                 
             ))
 
             self._global_var_store.add_var(
-                '1__player_scores',self._waldo_classes["WaldoMapVariable"](  # the type of waldo variable to create
-                '1__player_scores', # variable's name
+                '1__game',self._waldo_classes["WaldoMapVariable"](  # the type of waldo variable to create
+                '1__game', # variable's name
                 _host_uuid, # host uuid var name
                 False,  # if peered, True, otherwise, False
                 
@@ -203,18 +203,18 @@ def AnagramServer (_waldo_classes,_host_uuid,_conn_obj,*args):
 
                 pass
 
-            _tmp0 = True 
-            if not _context.assign(_context.global_store.get_var_if_exists("4__game_in_session"),_tmp0,_active_event):
-                pass
-
             username = ""
-            for _secret_waldo_for_iter____username in _context.get_for_iter(_context.global_store.get_var_if_exists("0__players"),_active_event):
+            for _secret_waldo_for_iter____username in _context.get_for_iter(_context.global_store.get_var_if_exists("1__game"),_active_event):
                 username = _context.write_val(username,_secret_waldo_for_iter____username,_active_event)
                 _tmp0 = 0 
-                _context.assign_on_key(_context.global_store.get_var_if_exists("1__player_scores"),username,_tmp0, _active_event)
+                _context.assign_on_key(_context.global_store.get_var_if_exists("1__game").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)),"score",_tmp0, _active_event)
 
-                _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("0__players").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)),_active_event),"get_new_message",'Game has started.' ,)
+                _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("1__game").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)).get_val(_active_event).get_val_on_key(_active_event,"player_helper"),_active_event),"get_new_message",'Game has started.' ,)
 
+                pass
+
+            _tmp0 = True 
+            if not _context.assign(_context.global_store.get_var_if_exists("4__game_in_session"),_tmp0,_active_event):
                 pass
 
 
@@ -418,11 +418,11 @@ def AnagramServer (_waldo_classes,_host_uuid,_conn_obj,*args):
 
             if _returning_to_public_ext_array != None:
                 # must de-waldo-ify objects before passing back
-                return _context.flatten_into_single_return_tuple(_context.handle_len(_context.global_store.get_var_if_exists("0__players"),_active_event) if 0 in _returning_to_public_ext_array else _context.de_waldoify(_context.handle_len(_context.global_store.get_var_if_exists("0__players"),_active_event),_active_event))
+                return _context.flatten_into_single_return_tuple(_context.handle_len(_context.global_store.get_var_if_exists("1__game"),_active_event) if 0 in _returning_to_public_ext_array else _context.de_waldoify(_context.handle_len(_context.global_store.get_var_if_exists("1__game"),_active_event),_active_event))
 
 
             # otherwise, use regular return mechanism... do not de-waldo-ify
-            return _context.flatten_into_single_return_tuple(_context.handle_len(_context.global_store.get_var_if_exists("0__players"),_active_event))
+            return _context.flatten_into_single_return_tuple(_context.handle_len(_context.global_store.get_var_if_exists("1__game"),_active_event))
 
 
 
@@ -470,11 +470,11 @@ def AnagramServer (_waldo_classes,_host_uuid,_conn_obj,*args):
 
             if _returning_to_public_ext_array != None:
                 # must de-waldo-ify objects before passing back
-                return _context.flatten_into_single_return_tuple(_context.global_store.get_var_if_exists("1__player_scores") if 0 in _returning_to_public_ext_array else _context.de_waldoify(_context.global_store.get_var_if_exists("1__player_scores"),_active_event))
+                return _context.flatten_into_single_return_tuple(_context.global_store.get_var_if_exists("1__game") if 0 in _returning_to_public_ext_array else _context.de_waldoify(_context.global_store.get_var_if_exists("1__game"),_active_event))
 
 
             # otherwise, use regular return mechanism... do not de-waldo-ify
-            return _context.flatten_into_single_return_tuple(_context.global_store.get_var_if_exists("1__player_scores"))
+            return _context.flatten_into_single_return_tuple(_context.global_store.get_var_if_exists("1__game"))
 
 
 
@@ -523,22 +523,22 @@ def AnagramServer (_waldo_classes,_host_uuid,_conn_obj,*args):
 
                 pass
 
-            _tmp0 = (_context.get_val_if_waldo(_context.global_store.get_var_if_exists("1__player_scores").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)),_active_event) + _context.get_val_if_waldo(points,_active_event))
-            _context.assign_on_key(_context.global_store.get_var_if_exists("1__player_scores"),username,_tmp0, _active_event)
+            _tmp0 = (_context.get_val_if_waldo(_context.global_store.get_var_if_exists("1__game").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)).get_val(_active_event).get_val_on_key(_active_event,"score"),_active_event) + _context.get_val_if_waldo(points,_active_event))
+            _context.assign_on_key(_context.global_store.get_var_if_exists("1__game").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)),"score",_tmp0, _active_event)
 
 
             if _returning_to_public_ext_array != None:
                 # must de-waldo-ify objects before passing back
-                return _context.flatten_into_single_return_tuple(_context.global_store.get_var_if_exists("1__player_scores").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)) if 0 in _returning_to_public_ext_array else _context.de_waldoify(_context.global_store.get_var_if_exists("1__player_scores").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)),_active_event))
+                return _context.flatten_into_single_return_tuple(_context.global_store.get_var_if_exists("1__game").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)).get_val(_active_event).get_val_on_key(_active_event,"score") if 0 in _returning_to_public_ext_array else _context.de_waldoify(_context.global_store.get_var_if_exists("1__game").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)).get_val(_active_event).get_val_on_key(_active_event,"score"),_active_event))
 
 
             # otherwise, use regular return mechanism... do not de-waldo-ify
-            return _context.flatten_into_single_return_tuple(_context.global_store.get_var_if_exists("1__player_scores").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)))
+            return _context.flatten_into_single_return_tuple(_context.global_store.get_var_if_exists("1__game").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)).get_val(_active_event).get_val_on_key(_active_event,"score"))
 
 
 
 
-        def add_user(self,username,pt):
+        def add_player(self,username,pt):
 
             # ensure that both sides have completed their onCreate calls
             # before continuing
@@ -557,7 +557,7 @@ def AnagramServer (_waldo_classes,_host_uuid,_conn_obj,*args):
                 # return them....if it were false, might just get back refrences
                 # to Waldo variables, and de-waldo-ifying them outside of the
                 # transaction might return over-written/inconsistent values.
-                _to_return = self._endpoint_func_call_prefix__waldo__add_user(_root_event,_ctx ,username,pt,[])
+                _to_return = self._endpoint_func_call_prefix__waldo__add_player(_root_event,_ctx ,username,pt,[])
                 # try committing root event
                 _root_event.request_commit()
                 _commit_resp = _root_event.event_complete_queue.get()
@@ -569,7 +569,7 @@ def AnagramServer (_waldo_classes,_host_uuid,_conn_obj,*args):
 
 
 
-        def _endpoint_func_call_prefix__waldo__add_user(self,_active_event,_context,username,pt,_returning_to_public_ext_array=None):
+        def _endpoint_func_call_prefix__waldo__add_player(self,_active_event,_context,username,pt,_returning_to_public_ext_array=None):
             if _context.check_and_set_from_endpoint_call_false():
                 username = _context.turn_into_waldo_var_if_was_var(username,True,_active_event,self._host_uuid,False,False)
                 pt = _context.turn_into_waldo_var_if_was_var(pt,True,_active_event,self._host_uuid,False,False)
@@ -582,9 +582,119 @@ def AnagramServer (_waldo_classes,_host_uuid,_conn_obj,*args):
 
                 pass
 
-            _tmp0 = pt
-            _context.assign_on_key(_context.global_store.get_var_if_exists("0__players"),username,_tmp0, _active_event)
+            player = self._waldo_classes["WaldoSingleThreadUserStructVariable"]("18__player",self._host_uuid,False,{"player_helper": self._waldo_classes["WaldoSingleThreadEndpointVariable"](  # the type of waldo variable to create
+                'player_helper', # variable's name
+                self._host_uuid, # host uuid var name
+                False,  # if peered, True, otherwise, False
+                None
+            ), "score": 0, })
+            _tmp0 = 0 
+            _context.assign_on_key(player,"score",_tmp0, _active_event)
 
+            _tmp0 = pt
+            _context.assign_on_key(player,"player_helper",_tmp0, _active_event)
+
+            _tmp0 = player
+            _context.assign_on_key(_context.global_store.get_var_if_exists("1__game"),username,_tmp0, _active_event)
+
+
+
+        def add_to_waiting(self,username,pt):
+
+            # ensure that both sides have completed their onCreate calls
+            # before continuing
+            self._block_ready()
+
+            while True:  # FIXME: currently using infinite retry 
+                _root_event = self._act_event_map.create_root_event()
+                _ctx = self._waldo_classes["ExecutingEventContext"](
+                    self._global_var_store,
+                    # not using sequence local store
+                    self._waldo_classes["VariableStore"](self._host_uuid))
+
+                # call internal function... note True as last param tells internal
+                # version of function that it needs to de-waldo-ify all return
+                # arguments (while inside transaction) so that this method may
+                # return them....if it were false, might just get back refrences
+                # to Waldo variables, and de-waldo-ifying them outside of the
+                # transaction might return over-written/inconsistent values.
+                _to_return = self._endpoint_func_call_prefix__waldo__add_to_waiting(_root_event,_ctx ,username,pt,[])
+                # try committing root event
+                _root_event.request_commit()
+                _commit_resp = _root_event.event_complete_queue.get()
+                if isinstance(_commit_resp,self._waldo_classes["CompleteRootCallResult"]):
+                    # means it isn't a backout message: we're done
+                    return _to_return
+                elif isinstance(_commit_resp,self._waldo_classes["StopRootCallResult"]):
+                    raise self._waldo_classes["StoppedException"]()
+
+
+
+        def _endpoint_func_call_prefix__waldo__add_to_waiting(self,_active_event,_context,username,pt,_returning_to_public_ext_array=None):
+            if _context.check_and_set_from_endpoint_call_false():
+                username = _context.turn_into_waldo_var_if_was_var(username,True,_active_event,self._host_uuid,False,False)
+                pt = _context.turn_into_waldo_var_if_was_var(pt,True,_active_event,self._host_uuid,False,False)
+
+                pass
+
+            else:
+                username = _context.turn_into_waldo_var_if_was_var(username,True,_active_event,self._host_uuid,False,False)
+                pt = _context.turn_into_waldo_var_if_was_var(pt,True,_active_event,self._host_uuid,False,False)
+
+                pass
+
+            message = _context.get_val_if_waldo((_context.get_val_if_waldo(username,_active_event) + _context.get_val_if_waldo(' has entered the waiting room.' ,_active_event)),_active_event)
+            self._endpoint_func_call_prefix__waldo__broadcastWaitingMessage(_active_event,_context,message,)
+            _tmp0 = pt
+            _context.assign_on_key(_context.global_store.get_var_if_exists("0__waiting_room"),username,_tmp0, _active_event)
+
+
+
+        def remove_from_waiting(self,username):
+
+            # ensure that both sides have completed their onCreate calls
+            # before continuing
+            self._block_ready()
+
+            while True:  # FIXME: currently using infinite retry 
+                _root_event = self._act_event_map.create_root_event()
+                _ctx = self._waldo_classes["ExecutingEventContext"](
+                    self._global_var_store,
+                    # not using sequence local store
+                    self._waldo_classes["VariableStore"](self._host_uuid))
+
+                # call internal function... note True as last param tells internal
+                # version of function that it needs to de-waldo-ify all return
+                # arguments (while inside transaction) so that this method may
+                # return them....if it were false, might just get back refrences
+                # to Waldo variables, and de-waldo-ifying them outside of the
+                # transaction might return over-written/inconsistent values.
+                _to_return = self._endpoint_func_call_prefix__waldo__remove_from_waiting(_root_event,_ctx ,username,[])
+                # try committing root event
+                _root_event.request_commit()
+                _commit_resp = _root_event.event_complete_queue.get()
+                if isinstance(_commit_resp,self._waldo_classes["CompleteRootCallResult"]):
+                    # means it isn't a backout message: we're done
+                    return _to_return
+                elif isinstance(_commit_resp,self._waldo_classes["StopRootCallResult"]):
+                    raise self._waldo_classes["StoppedException"]()
+
+
+
+        def _endpoint_func_call_prefix__waldo__remove_from_waiting(self,_active_event,_context,username,_returning_to_public_ext_array=None):
+            if _context.check_and_set_from_endpoint_call_false():
+                username = _context.turn_into_waldo_var_if_was_var(username,True,_active_event,self._host_uuid,False,False)
+
+                pass
+
+            else:
+                username = _context.turn_into_waldo_var_if_was_var(username,True,_active_event,self._host_uuid,False,False)
+
+                pass
+
+            message = _context.get_val_if_waldo((_context.get_val_if_waldo(username,_active_event) + _context.get_val_if_waldo(' has left the waiting room.' ,_active_event)),_active_event)
+            _context.global_store.get_var_if_exists("0__waiting_room").get_val(_active_event).del_key_called(_active_event,_context.get_val_if_waldo(username,_active_event))
+            self._endpoint_func_call_prefix__waldo__broadcastWaitingMessage(_active_event,_context,message,)
 
 
         def get_score(self,username):
@@ -632,11 +742,11 @@ def AnagramServer (_waldo_classes,_host_uuid,_conn_obj,*args):
 
             if _returning_to_public_ext_array != None:
                 # must de-waldo-ify objects before passing back
-                return _context.flatten_into_single_return_tuple(_context.global_store.get_var_if_exists("1__player_scores").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)) if 0 in _returning_to_public_ext_array else _context.de_waldoify(_context.global_store.get_var_if_exists("1__player_scores").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)),_active_event))
+                return _context.flatten_into_single_return_tuple(_context.global_store.get_var_if_exists("1__game").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)).get_val(_active_event).get_val_on_key(_active_event,"score") if 0 in _returning_to_public_ext_array else _context.de_waldoify(_context.global_store.get_var_if_exists("1__game").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)).get_val(_active_event).get_val_on_key(_active_event,"score"),_active_event))
 
 
             # otherwise, use regular return mechanism... do not de-waldo-ify
-            return _context.flatten_into_single_return_tuple(_context.global_store.get_var_if_exists("1__player_scores").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)))
+            return _context.flatten_into_single_return_tuple(_context.global_store.get_var_if_exists("1__game").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)).get_val(_active_event).get_val_on_key(_active_event,"score"))
 
 
 
@@ -683,8 +793,7 @@ def AnagramServer (_waldo_classes,_host_uuid,_conn_obj,*args):
 
                 pass
 
-            _context.global_store.get_var_if_exists("0__players").get_val(_active_event).del_key_called(_active_event,_context.get_val_if_waldo(username,_active_event))
-            _context.global_store.get_var_if_exists("1__player_scores").get_val(_active_event).del_key_called(_active_event,_context.get_val_if_waldo(username,_active_event))
+            _context.global_store.get_var_if_exists("1__game").get_val(_active_event).del_key_called(_active_event,_context.get_val_if_waldo(username,_active_event))
 
 
         def broadcastMessage(self,message):
@@ -730,9 +839,60 @@ def AnagramServer (_waldo_classes,_host_uuid,_conn_obj,*args):
                 pass
 
             username = ""
-            for _secret_waldo_for_iter____username in _context.get_for_iter(_context.global_store.get_var_if_exists("0__players"),_active_event):
+            for _secret_waldo_for_iter____username in _context.get_for_iter(_context.global_store.get_var_if_exists("1__game"),_active_event):
                 username = _context.write_val(username,_secret_waldo_for_iter____username,_active_event)
-                _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("0__players").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)),_active_event),"get_new_message",message,)
+                _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("1__game").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)).get_val(_active_event).get_val_on_key(_active_event,"player_helper"),_active_event),"get_new_message",message,)
+
+                pass
+
+
+
+        def broadcastWaitingMessage(self,message):
+
+            # ensure that both sides have completed their onCreate calls
+            # before continuing
+            self._block_ready()
+
+            while True:  # FIXME: currently using infinite retry 
+                _root_event = self._act_event_map.create_root_event()
+                _ctx = self._waldo_classes["ExecutingEventContext"](
+                    self._global_var_store,
+                    # not using sequence local store
+                    self._waldo_classes["VariableStore"](self._host_uuid))
+
+                # call internal function... note True as last param tells internal
+                # version of function that it needs to de-waldo-ify all return
+                # arguments (while inside transaction) so that this method may
+                # return them....if it were false, might just get back refrences
+                # to Waldo variables, and de-waldo-ifying them outside of the
+                # transaction might return over-written/inconsistent values.
+                _to_return = self._endpoint_func_call_prefix__waldo__broadcastWaitingMessage(_root_event,_ctx ,message,[])
+                # try committing root event
+                _root_event.request_commit()
+                _commit_resp = _root_event.event_complete_queue.get()
+                if isinstance(_commit_resp,self._waldo_classes["CompleteRootCallResult"]):
+                    # means it isn't a backout message: we're done
+                    return _to_return
+                elif isinstance(_commit_resp,self._waldo_classes["StopRootCallResult"]):
+                    raise self._waldo_classes["StoppedException"]()
+
+
+
+        def _endpoint_func_call_prefix__waldo__broadcastWaitingMessage(self,_active_event,_context,message,_returning_to_public_ext_array=None):
+            if _context.check_and_set_from_endpoint_call_false():
+                message = _context.turn_into_waldo_var_if_was_var(message,True,_active_event,self._host_uuid,False,False)
+
+                pass
+
+            else:
+                message = _context.turn_into_waldo_var_if_was_var(message,True,_active_event,self._host_uuid,False,False)
+
+                pass
+
+            username = ""
+            for _secret_waldo_for_iter____username in _context.get_for_iter(_context.global_store.get_var_if_exists("0__waiting_room"),_active_event):
+                username = _context.write_val(username,_secret_waldo_for_iter____username,_active_event)
+                _context.hide_endpoint_call(_active_event,_context,_context.get_val_if_waldo(_context.global_store.get_var_if_exists("0__waiting_room").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)),_active_event),"get_new_message",message,)
 
                 pass
 
@@ -784,9 +944,9 @@ def AnagramServer (_waldo_classes,_host_uuid,_conn_obj,*args):
 
             self._endpoint_func_call_prefix__waldo__broadcastMessage(_active_event,_context,'Game Over.' ,)
             username = ""
-            for _secret_waldo_for_iter____username in _context.get_for_iter(_context.global_store.get_var_if_exists("1__player_scores"),_active_event):
+            for _secret_waldo_for_iter____username in _context.get_for_iter(_context.global_store.get_var_if_exists("1__game"),_active_event):
                 username = _context.write_val(username,_secret_waldo_for_iter____username,_active_event)
-                score = _context.get_val_if_waldo((_context.get_val_if_waldo(username,_active_event) + _context.get_val_if_waldo((_context.get_val_if_waldo(' - ' ,_active_event) + _context.get_val_if_waldo(_context.to_text(_context.global_store.get_var_if_exists("1__player_scores").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)),_active_event),_active_event)),_active_event)),_active_event)
+                score = _context.get_val_if_waldo((_context.get_val_if_waldo(username,_active_event) + _context.get_val_if_waldo((_context.get_val_if_waldo(' - ' ,_active_event) + _context.get_val_if_waldo(_context.to_text(_context.global_store.get_var_if_exists("1__game").get_val(_active_event).get_val_on_key(_active_event,_context.get_val_if_waldo(username,_active_event)).get_val(_active_event).get_val_on_key(_active_event,"score"),_active_event),_active_event)),_active_event)),_active_event)
                 self._endpoint_func_call_prefix__waldo__broadcastMessage(_active_event,_context,score,)
 
                 pass
@@ -796,14 +956,7 @@ def AnagramServer (_waldo_classes,_host_uuid,_conn_obj,*args):
                 self._host_uuid,
                 False,
                 {})
-            if not _context.assign(_context.global_store.get_var_if_exists("0__players"),_tmp0,_active_event):
-                pass
-
-            _tmp0 = self._waldo_classes["WaldoSingleThreadMapVariable"]("garbage_name",
-                self._host_uuid,
-                False,
-                {})
-            if not _context.assign(_context.global_store.get_var_if_exists("1__player_scores"),_tmp0,_active_event):
+            if not _context.assign(_context.global_store.get_var_if_exists("1__game"),_tmp0,_active_event):
                 pass
 
 

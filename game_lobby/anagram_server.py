@@ -7,7 +7,7 @@ from waldo.lib import Waldo
 import time
 import random
 HOSTNAME = '127.0.0.1'
-PLAYER_NUM = 2
+PLAYER_NUM = 1
 GAMETIME = 60
 FILENAME = 'solutions.txt'
 SOLUTION_START_INDEX = 1
@@ -44,15 +44,16 @@ if __name__ == '__main__':
     anagram_server = Waldo.no_partner_create(AnagramServer)
     print 'GameServer created!'
     Waldo.tcp_accept(PlayerHelper, 'localhost', 6767, anagram_server)
+    load_solutions()
     while True:
-        print 'Waiting for 3 players....'
-        while anagram_server.get_player_count() != PLAYER_NUM:
+        print 'Waiting for players....'
+        while anagram_server.get_player_count() <= 0:
             time.sleep(2)
-        anagram_server.broadcastMessage('There are three players.  Game will begin in 3 seconds...')
-        load_solutions()
+        print 'Player entered.  Game will begin in 20 seconds.'
+        anagram_server.broadcastWaitingMessage('Game will begin in 20 seconds. Type "/ready" to join.')
+        time.sleep(20)
         set_solutions(anagram_server)
-        time.sleep(3)
-        anagram_server.broadcastMessage('Game begins!')
+        print 'Game has begun!'
         anagram_server.start_game()
         time.sleep(20)
         anagram_server.end_game()

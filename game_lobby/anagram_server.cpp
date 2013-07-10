@@ -2,9 +2,14 @@ anagram_server
 
 Endpoint AnagramServer;
 
+Struct player_data {
+  Endpoint player_helper;
+  Number score;
+}
+
 AnagramServer {
-  Map(from: Text, to: Endpoint) players;
-  Map(from: Text, to: Number) player_scores;
+  Map(from: Text, to: Endpoint) waiting_room;
+  Map(from: Text, to: Struct player_data) game;
   List (element: Text) solutions;
   Text anagram;
   TrueFalse game_in_session;
@@ -17,11 +22,11 @@ AnagramServer {
     solutions = solution;
   }
   Public Function start_game() {
-    game_in_session = True;
-    for (Text username in players) {
-          player_scores[username] = 0;
-	  players[username].get_new_message("Game has started.");
+    for (Text username in game) {
+          game[username].score = 0;
+	  game[username].player_helper.get_new_message("Game has started.");
     }
+    game_in_session = True;
   }
   
   Public Function get_game_status() returns TrueFalse {
@@ -37,46 +42,67 @@ AnagramServer {
   }
 
   Public Function get_player_count() returns Number {
-    return len(players);
+    return len(game);
   }
 
   Public Function get_scores() returns Map(from: Text, to: List(element: Text)) {
-    return player_scores;
+    return game;
   }
 
   Public Function add_score(Text username, Number points) returns Number{
-    player_scores[username] += points;
-    return player_scores[username];
+    game[username].score += points;
+    return game[username].score;
   }
 
-  Public Function add_user(Text username, Endpoint pt) {
-    players[username] = pt;
+  Public Function add_player(Text username, Endpoint pt) {
+    Text message = username + " is in the game room.";
+    Struct player_data player;
+    player.score = 0;
+    player.player_helper = pt;
+    game[username] = player;
+    broadcastWaitingMessage(message);
+  }
+
+  Public Function add_to_waiting(Text username, Endpoint pt) {
+    Text message = username + " has entered the waiting room.";
+    broadcastWaitingMessage(message);
+    waiting_room[username] = pt;
+  }
+
+  Public Function remove_from_waiting(Text username) {
+    Text message = username + " has left the waiting room.";
+    waiting_room.remove(username);
+    broadcastWaitingMessage(message);
   }
 
   Public Function get_score(Text username) returns Number {
-    return player_scores[username];
+    return game[username].score;
   }
 
   Public Function remove_user(Text username) {
-    players.remove(username);
-    player_scores.remove(username);
+    game.remove(username);
   }
 
   Public Function broadcastMessage(Text message) {
-    for (Text username in players) {
-      players[username].get_new_message(message);
+    for (Text username in game) {
+      game[username].player_helper.get_new_message(message);
+    }
+  }
+
+  Public Function broadcastWaitingMessage(Text message) {
+    for (Text username in waiting_room) {
+      waiting_room[username].get_new_message(message);
     }
   }
 
   Public Function end_game() {
     game_in_session = False;
     broadcastMessage("Game Over.");
-    for (Text username in player_scores) {
-      Text score = username + ' - ' + toText(player_scores[username]);
+    for (Text username in game) {
+      Text score = username + ' - ' + toText(game[username].score);
       broadcastMessage(score);
     }
     broadcastMessage("Press ENTER to continue.");
-    players = {};
-    player_scores = {};
+    game = {};
   }
 }
