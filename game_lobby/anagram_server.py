@@ -48,11 +48,11 @@ if __name__ == '__main__':
     while True:
         print 'Waiting for players....'
         while anagram_server.get_player_count() <= 0:
-            time.sleep(2)
+            time.sleep(1)
         print 'Player entered.  Game will begin in 20 seconds.'
+        set_solutions(anagram_server)
         anagram_server.broadcastWaitingMessage('Game will begin in 20 seconds. Type "/ready" to join.')
         time.sleep(20)
-        set_solutions(anagram_server)
         print 'Game has begun!'
         anagram_server.start_game()
         time.sleep(20)
