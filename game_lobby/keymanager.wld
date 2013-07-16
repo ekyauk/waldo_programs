@@ -1,0 +1,43 @@
+Keymanager
+
+Endpoint Manager;
+Endpoint Client;
+
+Sequences
+{
+  
+  get_cert_from_req:
+    Client.send_req -> Manager.gen_cert;
+
+}
+
+
+Sequence get_cert_from_req(Text req)
+    returns Text cert
+{
+    Client.send_req{}
+    Manager.gen_cert
+    {
+        cert = getCertFromReq(req);
+    }
+}
+
+
+Client
+{    
+    Public Function req_to_cert(Text req) returns Text
+    {
+        return get_cert_from_req(req);
+    }
+}
+
+Manager
+{
+    Function (in: Text; returns: Text) getCertFromReq;   
+
+    // initializes 
+    onCreate(Function (in: Text; returns: Text) getCert)
+    {
+        getCertFromReq = getCert;
+    }
+}
