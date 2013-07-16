@@ -1,0 +1,3 @@
+[submodule "waldo_programs"]
+	path = waldo_programs
+	url = ssh://git@github.com:ekyauk/waldo_programs.git
