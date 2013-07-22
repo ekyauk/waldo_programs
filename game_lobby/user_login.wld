@@ -1,0 +1,42 @@
+userfile
+
+Endpoint UserLogin;
+Endpoint UserLoginHelper;
+
+Sequences {
+  CheckLogin: UserLogin.doNothing -> UserLoginHelper.check_info;
+  RegisterUser: UserLogin.doNothing -> UserLoginHelper.check_database;
+}
+
+Sequence CheckLogin(Text name, Text password) returns TrueFalse valid_combination {
+    UserLogin.doNothing{}
+    UserLoginHelper.check_info {
+        valid_combination = password_server.check_password(name, password);
+    }
+}
+
+Sequence RegisterUser(Text name, Text password) returns TrueFalse used_name{
+    UserLogin.doNothing{}
+    UserLoginHelper.check_database {
+        used_name = password_server.check_user(name);
+        if (not used_name) password_server.register_user(name, password);
+    }
+}
+
+UserLogin {
+
+    Public Function check_password(Text name, Text password) returns TrueFalse {
+        return CheckLogin(name, password);
+    }
+
+    Public Function register_user(Text name, Text password) returns TrueFalse{
+        return not RegisterUser(name, password);
+    }
+}
+
+UserLoginHelper {
+    Endpoint password_server;
+    onCreate(Endpoint server) {
+        password_server = server;
+    }
+}

@@ -172,16 +172,11 @@ if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-g", "--generate", action ="store_true", dest = "generate", default = False)
     (option, args) = parser.parse_args()
+    Waldo.start_ca(option.generate, host = KEY_MANAGER_HOST, port = KEY_MANAGER_PORT)
     if option.generate:
-        generate_ca_certificate()
-    else:
-        global ca_cert
-        global ca_key
-        ca_cert = crypto.load_certificate(crypto.FILETYPE_PEM,open('cacertificate.pem').read())
-        ca_key = crypto.load_privatekey(crypto.FILETYPE_PEM,open('cakey.pem').read())
-        Waldo.stcp_accept(Manager, KEY_MANAGER_HOST, KEY_MANAGER_PORT, generate_cert_from_request)
-        while True:
-            time.sleep(5)
+        Waldo.add_ca_to_list("ca_list.pem", KEY_MANAGER_HOST, KEY_MANAGER_PORT)
+    while True:
+        time.sleep(5)
 
 
 

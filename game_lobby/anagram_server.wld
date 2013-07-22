@@ -24,7 +24,7 @@ AnagramServer {
   Public Function start_game() {
     for (Text username in game) {
           game[username].score = 0;
-	  game[username].player_helper.get_new_message("Game has started.");
+	  game[username].player_helper.get_new_game_message("Game has started. Press ENTER to begin.\n");
     }
     game_in_session = True;
   }
@@ -55,7 +55,7 @@ AnagramServer {
   }
 
   Public Function add_player(Text username, Endpoint pt) {
-    Text message = username + " is in the game room.";
+    Text message = username + " is in the game room.\n";
     Struct player_data player;
     player.score = 0;
     player.player_helper = pt;
@@ -64,15 +64,15 @@ AnagramServer {
   }
 
   Public Function add_to_waiting(Text username, Endpoint pt) {
-    Text message = username + " has entered the waiting room.";
+    Text message = username + " has entered the waiting room.\n";
     broadcastWaitingMessage(message);
     waiting_room[username] = pt;
   }
 
   Public Function remove_from_waiting(Text username) {
-    Text message = username + " has left the waiting room.";
-    broadcastWaitingMessage(message);
+    Text message = username + " has left the waiting room.\n";
     waiting_room.remove(username);
+    broadcastWaitingMessage(message);
   }
 
   Public Function get_score(Text username) returns Number {
@@ -85,24 +85,24 @@ AnagramServer {
 
   Public Function broadcastMessage(Text message) {
     for (Text username in game) {
-      game[username].player_helper.get_new_message(message);
+      game[username].player_helper.get_new_game_message(message);
     }
   }
 
   Public Function broadcastWaitingMessage(Text message) {
     for (Text username in waiting_room) {
-      waiting_room[username].get_new_message(message);
+      waiting_room[username].get_new_waiting_message(message);
     }
   }
 
   Public Function end_game() {
     game_in_session = False;
-    broadcastMessage("Game Over.");
+    Text message = 'Game Over\n';
     for (Text username in game) {
-      Text score = username + ' - ' + toText(game[username].score);
-      broadcastMessage(score);
+        message += username + ' - ' + toText(game[username].score) + '\n';
     }
-    broadcastMessage("Press ENTER to continue.");
+    message += "\n Press ENTER to see your remaining solutions or close the game window.\n";
+    broadcastMessage(message);
     game = {};
   }
 }
