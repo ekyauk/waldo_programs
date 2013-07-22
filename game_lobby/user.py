@@ -1,9 +1,10 @@
 from user_emitted import User
+from user_login_emitted import UserLogin
 from server_emitted import Server
 from player_emitted import Player
 from anagram_player import AnagramPlayer
-from keymanager_emitted import Client
 from gui_string import GUI_String_Ext
+from login import LoginWindow
 from wx import *
 import sys, os, time, random
 sys.path.append(os.path.join("../../"))
@@ -11,12 +12,11 @@ from waldo.lib import Waldo
 import OpenSSL
 from OpenSSL import crypto
 HOSTNAME = '127.0.0.1'
+PORT = 6922
 WORD_MIN = 3
 WORD_MAX = 7
-global user
-global name
-global text_display
-global text_input
+name = ""
+
 BUTTON_WIDTH = 50
 TEXT_BOX_HEIGHT = 30
 CHAT_WINDOW_WIDTH = 400
@@ -29,35 +29,11 @@ CERT_TEXT_FILE = "user_cert.pem"
 KEY_MANAGER_HOST = '127.0.0.1'
 KEY_MANAGER_PORT = 6974
 
-def get_keytext():
-    key = crypto.PKey()
-    key.generate_key(crypto.TYPE_RSA,2048)
-    keytext = crypto.dump_privatekey(crypto.FILETYPE_PEM,key)
-    return keytext
 
-def text_to_file(text, filename):
-    f = open(filename, "w+")
-    f.write(text)
-    f.close()
-
-def generate_request(CN):
-    key = crypto.load_privatekey(crypto.FILETYPE_PEM,open(KEY_TEXT_FILE).read())
-    req = OpenSSL.crypto.X509Req()
-    req.get_subject().CN = CN
-    req.set_pubkey(key)
-    req.sign(key, "sha1")
-    req = crypto.dump_certificate_request(crypto.FILETYPE_PEM, req)
-    return req
-
-def create_certificate():
-    client = Waldo.stcp_connect(Client, KEY_MANAGER_HOST, KEY_MANAGER_PORT)
-    request = generate_request(name)
-    return client.req_to_cert(request)
 
 def create_chat_window():
     app = App(False)
-    title = name + "'s chat window";
-    frame = Frame(None, -1, title, size = (CHAT_WINDOW_WIDTH, CHAT_WINDOW_HEIGHT))
+    frame = Frame(None, -1, title = "Gamelobby", size = (CHAT_WINDOW_WIDTH, CHAT_WINDOW_HEIGHT))
     global text_display
     text_display = TextCtrl(frame, size = (CHAT_WINDOW_WIDTH, MESSAGE_BOX_HEIGHT), style = TE_READONLY | TE_MULTILINE)
     global text_input
@@ -68,19 +44,44 @@ def create_chat_window():
     frame.Show(True)
     return app
 
+def on_login (event):
+    login_info = login.get_login_info()
+    if user_login.check_password(login_info[0], login_info[1]):
+        global name
+        name = login_info[0]
+        login.close()
+    else:
+        login.invalid_info()
+        
+def on_register (event):
+    login_info = login.get_login_info() #contains tuple (username, password)
+    registered = user_login.register_user(login_info[0], login_info[1])
+    login.register_message(registered)
+
+def login_user():
+    global user_login
+    user_login = Waldo.stcp_connect(UserLogin, HOSTNAME, PORT + 1)
+    global login
+    login = LoginWindow()
+    login.bind_functions(on_register, on_login)
+    login.mainloop()
+    if name == "":
+        exit(0)
+
+
 def connect_user():
-    text_to_file(get_keytext(), KEY_TEXT_FILE)
-    text_to_file(create_certificate(), CERT_TEXT_FILE)
+    key = Waldo.get_key()
+    certificate = Waldo.get_certificate(name, KEY_MANAGER_HOST, KEY_MANAGER_PORT, key)
     app = create_chat_window()
     gui_string = GUI_String_Ext(text_display)
     global user
-    user = Waldo.stcp_connect(User, HOSTNAME, 6922, name, gui_string, key = KEY_TEXT_FILE, cert = CERT_TEXT_FILE)
+    user = Waldo.stcp_connect(User, HOSTNAME, PORT, gui_string, key = key, cert = certificate)
+    user.set_name(name)
     text_display.AppendText("You have been added to the chat server.\n")
     user.add_to_server(False)
     app.MainLoop()
 
     
-
 def read_command(message):
     if message.startswith('quit'):
         user.quit()
@@ -100,9 +101,7 @@ def read_command(message):
        user.print_users()
 
     elif message.startswith('anagram_game'):
-        anagram_player = AnagramPlayer(name)
-        text_display.AppendText('You have entered the anagram waiting room.')
-        anagram_player.read_waiting_room_commands()                
+        anagram_player = AnagramPlayer(user.get_username())
 
     elif message.startswith('h'):
         text_display.AppendText('Commands:\n\t/quit - to leave the chatroom.\n\t/private [username] [message] - to send a private message.\n\t/users_list - to see a list of users.\n\t/anagram_game - to enter the anagram game.')
@@ -120,5 +119,5 @@ def send_message(event):
         user.send_message(message)
 
 if __name__ == '__main__':
-    name = raw_input('ENTER YOUR NAME: ')
+    login_user()
     connect_user()

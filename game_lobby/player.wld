@@ -4,15 +4,16 @@ Endpoint Player;
 Endpoint PlayerHelper;
 
 Sequences {
- GameInSession: Player.doNothing -> PlayerHelper.checkServer;
- AddUser: Player.doNothing -> PlayerHelper.sendServer;
- AddPoints: Player.doNothing -> PlayerHelper.addPoints -> Player.displayMessage;
- DisplayMessage: PlayerHelper.doNothing -> Player.printMessage;
- GetAnagram: Player.doNothing -> PlayerHelper.setAnagram;
- GetSolutions: Player.doNothing -> PlayerHelper.setList;
- JoinWaiting: Player.doNothing -> PlayerHelper.addPlayer;
- LeaveWaiting: Player.doNothing -> PlayerHelper.removePlayer;
- SendToWaiting: Player.doNothing -> PlayerHelper.sendMessage;
+  GameInSession: Player.doNothing -> PlayerHelper.checkServer;
+  AddUser: Player.doNothing -> PlayerHelper.sendServer;
+  AddPoints: Player.doNothing -> PlayerHelper.addPoints -> Player.displayMessage;
+  GetAnagram: Player.doNothing -> PlayerHelper.setAnagram;
+  GetSolutions: Player.doNothing -> PlayerHelper.setList;
+  JoinWaiting: Player.doNothing -> PlayerHelper.addPlayer;
+  LeaveWaiting: Player.doNothing -> PlayerHelper.removePlayer;
+  SendToWaiting: Player.doNothing -> PlayerHelper.sendMessage;
+  DisplayWaiting: PlayerHelper.doNothing -> Player.displayWaitingMessage;
+  DisplayGame: PlayerHelper.doNothing -> Player.displayGameMessage;
 }
 
 Peered 
@@ -67,18 +68,25 @@ Sequence AddPoints(Number points) {
   Player.doNothing{}
   PlayerHelper.addPoints {
     Number score = game_server.add_score(username, points);
-    message = 'Score: ' + toText(score);
+    message = 'Score: ' + toText(score) + '\n';
   }
   Player.displayMessage {
-    extCopy message to screen;
+    extCopy message to game_message;
   }
 }
 
-Sequence DisplayMessage(Text message) {
-  PlayerHelper.doNothing{}
-  Player.printMessage {
-    extCopy message to screen;
-  }
+Sequence DisplayWaiting(Text message) {
+    PlayerHelper.doNothing{}
+    Player.displayWaitingMessage{
+        extCopy message to waiting_message;
+    }
+}
+
+Sequence DisplayGame(Text message) {
+    PlayerHelper.doNothing{}
+    Player.displayGameMessage{
+        extCopy message to game_message;
+    }
 }
 
 Sequence SendToWaiting(Text message) {
@@ -89,18 +97,41 @@ Sequence SendToWaiting(Text message) {
 }
 
 Player {
-    
-    External Text screen;
-    onCreate(Text name, External Text gui_str) {
+
+    External Text waiting_message;
+    External Text game_message;
+    List(element: Text) solution;
+    List(element: Text) used_words;
+    onCreate(Text name, External Text waiting_gui, External Text game_gui) {
         username = name;
-        extAssign gui_str to screen;
-    }
-    Public Function get_anagram() returns Text{
-        return GetAnagram();
+        extAssign waiting_gui to waiting_message;
+        extAssign game_gui to game_message;
     }
 
-    Public Function get_solutions() returns List(element: Text){
-        return GetSolutions();
+    Public Function check_answer(Text answer) {
+        if (answer in used_words) {
+            extCopy answer + ' was already used.\n' to game_message;
+        } else if (answer in solution) {
+            used_words.append(answer);
+            add_points(len(answer));
+        } else {
+            extCopy answer + ' is an invalid word.\n' to game_message;
+        }
+    }
+
+    Public Function display_remaining_answers() {
+        Text remaining_answers;
+        for (Text answer in solution) {
+            if (not answer in used_words) {
+                remaining_answers += answer + '\n';
+            }
+        }
+        extCopy remaining_answers to game_message;
+    }
+
+    Public Function get_game_information() returns Text{
+        solution = GetSolutions();
+        return GetAnagram();
     }
 
     Public Function game_in_session() returns TrueFalse {
@@ -133,7 +164,10 @@ PlayerHelper {
     onCreate(Endpoint server) {
         game_server = server;
     }
-    Public Function get_new_message(Text message) returns Nothing {
-        DisplayMessage(message);
+    Public Function get_new_waiting_message(Text message) {
+        DisplayWaiting(message);
+    }
+    Public Function get_new_game_message(Text message) {
+        DisplayGame(message);
     }
 }

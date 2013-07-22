@@ -4,17 +4,19 @@ Endpoint User;
 Endpoint UserHelper;
 
 Sequences {
- AddUser: User.doNothing -> UserHelper.sendServer;
- SendMessage: User.send -> UserHelper.updateUsers; 
- DisplayMessage: UserHelper.doNothing -> User.printMessage;
- Quit: User.doNothing -> UserHelper.notify;
- SendPrivate: User.doNothing -> UserHelper.sendMessage -> User.checkSent;
- PrintUsers: User.doNothing -> UserHelper.get_list -> User.print_list;
+  AddUser: User.doNothing -> UserHelper.sendServer;
+  SendMessage: User.send -> UserHelper.updateUsers; 
+  DisplayMessage: UserHelper.doNothing -> User.printMessage;
+  Quit: User.doNothing -> UserHelper.notify;
+  SendPrivate: User.doNothing -> UserHelper.sendMessage -> User.checkSent;
+  PrintUsers: User.doNothing -> UserHelper.get_list -> User.print_list;
+  CheckLogin: User.doNothing -> UserHelper.check_info;
+  CheckUser: User.doNothing -> UserHelper.check_database;
 }
 
 Peered 
 {
-  Text username;
+    Text username = "";
 }
 
 Sequence Quit() {
@@ -88,11 +90,24 @@ Sequence PrintUsers() {
   }
 
 }
+Sequence CheckLogin(Text name, Text password) returns TrueFalse valid_combination {
+    User.doNothing{}
+    UserHelper.check_info {
+        valid_combination = chat_server.check_password(name, password);
+        if (valid_combination) print ('returned true');
+    }
+}
+
+Sequence CheckUser(Text name) returns TrueFalse exists {
+    User.doNothing{}
+    UserHelper.check_database {
+        exists = chat_server.check_user(name);
+    }
+}
 
 User {
     External Text message;
-    onCreate(Text name, External Text gui_str) {
-        username = name;
+    onCreate(External Text gui_str) {
         extAssign gui_str to message;
     }
 
@@ -112,6 +127,21 @@ User {
     Public Function print_users() {
         PrintUsers();
     }
+    Public Function get_username ()returns Text {
+        return username;
+    }
+
+    Public Function check_password(Text name, Text password) returns TrueFalse {
+        return CheckLogin(name, password);
+    }
+
+    Public Function check_user(Text name) returns TrueFalse {
+        return CheckUser(name);
+    }
+
+    Public Function set_name(Text name) {
+        username = name;
+    }
 }
 
 
@@ -119,8 +149,10 @@ UserHelper {
   Endpoint chat_server;
   onCreate(Endpoint server) {
     chat_server = server;
+    
   }
   Public Function get_new_message(Text msg) returns Nothing {
     DisplayMessage(msg);
   }
+ 
 }

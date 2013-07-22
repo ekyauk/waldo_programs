@@ -9,6 +9,7 @@ import random
 HOSTNAME = '127.0.0.1'
 PLAYER_NUM = 1
 GAMETIME = 60
+WAITTIME = 10
 FILENAME = 'solutions.txt'
 SOLUTION_START_INDEX = 1
 
@@ -48,11 +49,11 @@ if __name__ == '__main__':
     while True:
         print 'Waiting for players....'
         while anagram_server.get_player_count() <= 0:
-            time.sleep(1)
-        print 'Player entered.  Game will begin in 20 seconds.'
+            time.sleep(0.1)
+        print 'Player entered.  Game will begin in 10 seconds.'
         set_solutions(anagram_server)
-        anagram_server.broadcastWaitingMessage('Game will begin in 20 seconds. Type "/ready" to join.')
-        time.sleep(20)
+        anagram_server.broadcastWaitingMessage('Game will begin in %d seconds. Type "/ready" to join.\n' %WAITTIME)
+        time.sleep(WAITTIME)
         print 'Game has begun!'
         anagram_server.start_game()
         time.sleep(20)
