@@ -6,11 +6,10 @@ from anagram_player import AnagramPlayer
 from gui_string import GUI_String_Ext
 from login import LoginWindow
 from wx import *
-import sys, os, time, random
+import sys, os, time
 sys.path.append(os.path.join("../../"))
 from waldo.lib import Waldo
 import OpenSSL
-from OpenSSL import crypto
 HOSTNAME = '127.0.0.1'
 PORT = 6922
 WORD_MIN = 3
@@ -24,7 +23,6 @@ CHAT_WINDOW_HEIGHT = 500
 MESSAGE_BOX_HEIGHT = 450
 KEY_TEXT_FILE = "user_key.pem"
 CERT_TEXT_FILE = "user_cert.pem"
-
 
 KEY_MANAGER_HOST = '127.0.0.1'
 KEY_MANAGER_PORT = 6974
@@ -46,16 +44,26 @@ def create_chat_window():
 
 def on_login (event):
     login_info = login.get_login_info()
-    if user_login.check_password(login_info[0], login_info[1]):
+    encrypted_key = user_login.get_encrypted_key(login_info[0], login_info[1])
+    if encrypted_key != "":
         global name
         name = login_info[0]
+        password_hashed = Waldo.hash(login_info[1], user_login.get_salt(name))
+        global key
+        key = Waldo.decrypt_keytext(encrypted_key, password_hashed)
+        global certificate
+        certificate = Waldo.get_cert_from_text(user_login.get_certificate(name))
         login.close()
     else:
         login.invalid_info()
         
 def on_register (event):
     login_info = login.get_login_info() #contains tuple (username, password)
-    registered = user_login.register_user(login_info[0], login_info[1])
+    key = Waldo.get_key()
+    salt = Waldo.salt()
+    password_hashed = Waldo.hash(login_info[1], salt)
+    print password_hashed
+    registered = user_login.register_user(login_info[0], login_info[1], Waldo.encrypt_keytext(key, password_hashed), Waldo.get_cert_text(Waldo.get_certificate(login_info[0], KEY_MANAGER_HOST, KEY_MANAGER_PORT, key)), salt)
     login.register_message(registered)
 
 def login_user():
@@ -70,11 +78,10 @@ def login_user():
 
 
 def connect_user():
-    key = Waldo.get_key()
-    certificate = Waldo.get_certificate(name, KEY_MANAGER_HOST, KEY_MANAGER_PORT, key)
     app = create_chat_window()
     gui_string = GUI_String_Ext(text_display)
     global user
+    print certificate
     user = Waldo.stcp_connect(User, HOSTNAME, PORT, gui_string, key = key, cert = certificate)
     user.set_name(name)
     text_display.AppendText("You have been added to the chat server.\n")
@@ -85,7 +92,6 @@ def connect_user():
 def read_command(message):
     if message.startswith('quit'):
         user.quit()
-        text_display.AppendText('You have left the chatserver.\n')
         exit(0)
 
     elif message.startswith('private'):

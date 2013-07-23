@@ -3,9 +3,28 @@ userfile
 Endpoint UserLogin;
 Endpoint UserLoginHelper;
 
+
+
 Sequences {
   CheckLogin: UserLogin.doNothing -> UserLoginHelper.check_info;
   RegisterUser: UserLogin.doNothing -> UserLoginHelper.check_database;
+  EncryptedKey: UserLogin.doNothing -> UserLoginHelper.return_key;
+  ReturnCertificate: UserLogin.doNothing -> UserLoginHelper.get_cert;
+  ReturnSalt: UserLogin.doNothing -> UserLoginHelper.get_salt;
+}
+
+Sequence ReturnSalt(Text name) returns Number salt {
+    UserLogin.doNothing{}
+    UserLoginHelper.get_salt {
+        salt = password_server.get_salt(name);
+    }
+}
+
+Sequence ReturnCertificate(Text name) returns Text certificate {
+    UserLogin.doNothing{}
+    UserLoginHelper.get_cert{
+        certificate = password_server.get_certificate(name);
+    }
 }
 
 Sequence CheckLogin(Text name, Text password) returns TrueFalse valid_combination {
@@ -15,11 +34,18 @@ Sequence CheckLogin(Text name, Text password) returns TrueFalse valid_combinatio
     }
 }
 
-Sequence RegisterUser(Text name, Text password) returns TrueFalse used_name{
+Sequence RegisterUser(Text name, Text password, Text key, Text cert, Number salt) returns TrueFalse used_name{
     UserLogin.doNothing{}
     UserLoginHelper.check_database {
         used_name = password_server.check_user(name);
-        if (not used_name) password_server.register_user(name, password);
+        if (not used_name) password_server.register_user(name, password, key, cert, salt);
+    }
+}
+
+Sequence EncryptedKey(Text name, Text password) returns Text encrypted{
+    UserLogin.doNothing{}
+    UserLoginHelper.return_key {
+        encrypted = password_server.get_encrypted_key(name, password);
     }
 }
 
@@ -29,8 +55,20 @@ UserLogin {
         return CheckLogin(name, password);
     }
 
-    Public Function register_user(Text name, Text password) returns TrueFalse{
-        return not RegisterUser(name, password);
+    Public Function register_user(Text name, Text password, Text key, Text cert, Number salt) returns TrueFalse{
+        return not RegisterUser(name, password, key, cert, salt);
+    }
+    
+    Public Function get_encrypted_key(Text name, Text password) returns Text {
+        return EncryptedKey(name, password);
+    }
+
+    Public Function get_certificate(Text name) returns Text {
+        return ReturnCertificate(name);
+    }
+
+    Public Function get_salt(Text name) returns Number {
+        return ReturnSalt(name);
     }
 }
 
