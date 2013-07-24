@@ -31,7 +31,7 @@ KEY_MANAGER_PORT = 6974
 
 def create_chat_window():
     app = App(False)
-    frame = Frame(None, -1, title = "Gamelobby", size = (CHAT_WINDOW_WIDTH, CHAT_WINDOW_HEIGHT))
+    frame = Frame(None, -1, title = name + "'s Game Lobby Window", size = (CHAT_WINDOW_WIDTH, CHAT_WINDOW_HEIGHT))
     global text_display
     text_display = TextCtrl(frame, size = (CHAT_WINDOW_WIDTH, MESSAGE_BOX_HEIGHT), style = TE_READONLY | TE_MULTILINE)
     global text_input
@@ -55,16 +55,33 @@ def on_login (event):
         certificate = Waldo.get_cert_from_text(user_login.get_certificate(name))
         login.close()
     else:
-        login.invalid_info()
+        login.set_message("Username/password combination was not found.")
         
 def on_register (event):
-    login_info = login.get_login_info() #contains tuple (username, password)
-    key = Waldo.get_key()
-    salt = Waldo.salt()
-    password_hashed = Waldo.hash(login_info[1], salt)
-    print password_hashed
-    registered = user_login.register_user(login_info[0], login_info[1], Waldo.encrypt_keytext(key, password_hashed), Waldo.get_cert_text(Waldo.get_certificate(login_info[0], KEY_MANAGER_HOST, KEY_MANAGER_PORT, key)), salt)
-    login.register_message(registered)
+    register_info = login.get_register_info() #contains tuple (username, password, password)
+    if register_info[1] == register_info[2]:
+        name = register_info[0]
+        if user_login.unique_username(name):
+            key = Waldo.get_key()
+            salt = Waldo.salt()
+            password = register_info[1]
+            password_hashed = Waldo.hash(password, salt)
+            user_login.register_user(name, password, Waldo.encrypt_keytext(key, password_hashed), Waldo.get_cert_text(Waldo.get_certificate(name, KEY_MANAGER_HOST, KEY_MANAGER_PORT, key)), salt)
+            login.login_mode()
+            login.set_message("Account created! You can now login.")
+        else:
+            login.set_message("Username is already used.")
+    else:
+        login.set_message("Passwords do not match.")
+
+def on_change_password(event):
+    login_info = login.get_login_info()
+    if user_login.get_encrypted_key(login_info[0], login_info[1]) != "":
+        login.clear_password()
+        user_login.get_salt(login_info[0])
+        login.set_message("Enter your new password.")
+    else:
+        login.set_message("Username/password combination was not found.")
 
 def login_user():
     global user_login
@@ -81,11 +98,10 @@ def connect_user():
     app = create_chat_window()
     gui_string = GUI_String_Ext(text_display)
     global user
-    print certificate
     user = Waldo.stcp_connect(User, HOSTNAME, PORT, gui_string, key = key, cert = certificate)
     user.set_name(name)
     text_display.AppendText("You have been added to the chat server.\n")
-    user.add_to_server(False)
+    user.add_to_server()
     app.MainLoop()
 
     
@@ -101,19 +117,19 @@ def read_command(message):
            text_display.AppendText('Username must be specified.\n')
        else:
            split_message = new_message.partition(' ')#split_message now contains the tuple (username,' ',message) 
-           user.private_message(split_message[0], split_message[2]);#Make this block a foreign function to move to waldo code
+           user.private_message(split_message[0], split_message[2]);
 
     elif message.startswith('users_list'):
        user.print_users()
 
     elif message.startswith('anagram_game'):
-        anagram_player = AnagramPlayer(user.get_username())
+        anagram_player = AnagramPlayer(name)
 
     elif message.startswith('h'):
-        text_display.AppendText('Commands:\n\t/quit - to leave the chatroom.\n\t/private [username] [message] - to send a private message.\n\t/users_list - to see a list of users.\n\t/anagram_game - to enter the anagram game.')
+        text_display.AppendText('Commands:\n\t/quit - to leave the chatroom.\n\t/private [username] [message] - to send a private message.\n\t/users_list - to see a list of users.\n\t/anagram_game - to enter the anagram game.\n')
 
     else:
-       text_display.AppendText("Invalid command. Type /h for a list of commands.")
+       text_display.AppendText("Invalid command. Type /h for a list of commands.\n")
 
 def send_message(event):
     message = str(text_input.GetValue() + "\n")

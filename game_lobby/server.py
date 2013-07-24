@@ -18,7 +18,7 @@ STRUCT_FIELD_TWO = "encryptKey"
 STRUCT_FIELD_THREE = "cert"
 STRUCT_FIELD_FOUR = "salt"
 SEP = "(--^^--)\n"
-USER_SEP = "\n----------END USER----------\n\n----------BEGIN USER----------"
+USER_SEP = "\n----------END USER----------\n\n----------BEGIN USER----------\n"
 
 
 def load_database():

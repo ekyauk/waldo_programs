@@ -143,6 +143,7 @@ Player {
     }
 
     Public Function add_to_game() {
+        SendToWaiting(username + "is ready.\n");
         AddUser();
     }
     Public Function join_waiting_room() {

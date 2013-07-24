@@ -1,11 +1,8 @@
 from player_emitted import PlayerHelper
 from anagram_server_emitted import AnagramServer
-import sys
-import os
+import sys, os, time, random
 sys.path.append(os.path.join("../../"))
 from waldo.lib import Waldo
-import time
-import random
 HOSTNAME = '127.0.0.1'
 PLAYER_NUM = 1
 GAMETIME = 60
@@ -53,7 +50,10 @@ if __name__ == '__main__':
         print 'Player entered.  Game will begin in 10 seconds.'
         set_solutions(anagram_server)
         anagram_server.broadcastWaitingMessage('Game will begin in %d seconds. Type "/ready" to join.\n' %WAITTIME)
-        time.sleep(WAITTIME)
+        for i in range(WAITTIME):
+            if (i == WAITTIME/2):
+                anagram_server.broadcastMessage('Game will begin in %d seconds' %i)
+            time.sleep(1)
         print 'Game has begun!'
         anagram_server.start_game()
         time.sleep(20)

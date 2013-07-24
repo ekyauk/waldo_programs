@@ -11,6 +11,7 @@ Sequences {
   EncryptedKey: UserLogin.doNothing -> UserLoginHelper.return_key;
   ReturnCertificate: UserLogin.doNothing -> UserLoginHelper.get_cert;
   ReturnSalt: UserLogin.doNothing -> UserLoginHelper.get_salt;
+  CheckUser: UserLogin.doNothing -> UserLoginHelper.check_name;
 }
 
 Sequence ReturnSalt(Text name) returns Number salt {
@@ -34,14 +35,19 @@ Sequence CheckLogin(Text name, Text password) returns TrueFalse valid_combinatio
     }
 }
 
-Sequence RegisterUser(Text name, Text password, Text key, Text cert, Number salt) returns TrueFalse used_name{
+Sequence RegisterUser(Text name, Text password, Text key, Text cert, Number salt) {
     UserLogin.doNothing{}
     UserLoginHelper.check_database {
-        used_name = password_server.check_user(name);
-        if (not used_name) password_server.register_user(name, password, key, cert, salt);
+        password_server.register_user(name, password, key, cert, salt);
     }
 }
 
+Sequence CheckUser (Text name) returns TrueFalse used_name{
+    UserLogin.doNothing{}
+    UserLoginHelper.check_name {
+        used_name = password_server.check_user(name);
+    }
+}
 Sequence EncryptedKey(Text name, Text password) returns Text encrypted{
     UserLogin.doNothing{}
     UserLoginHelper.return_key {
@@ -55,8 +61,12 @@ UserLogin {
         return CheckLogin(name, password);
     }
 
-    Public Function register_user(Text name, Text password, Text key, Text cert, Number salt) returns TrueFalse{
-        return not RegisterUser(name, password, key, cert, salt);
+    Public Function unique_username(Text name) returns TrueFalse {
+        return not CheckUser(name);
+    }
+
+    Public Function register_user(Text name, Text password, Text key, Text cert, Number salt) {
+        RegisterUser(name, password, key, cert, salt);
     }
     
     Public Function get_encrypted_key(Text name, Text password) returns Text {

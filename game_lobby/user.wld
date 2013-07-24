@@ -28,16 +28,10 @@ Sequence Quit() {
   }
 }
 
-Sequence AddUser(TrueFalse inGame) {
+Sequence AddUser() {
   User.doNothing {}
   UserHelper.sendServer {
-    Text msg;
-    if (inGame) {
-      msg = " is back from a game.\n";
-    } else {
-      msg = " has entered the chatroom.\n";
-    }
-    msg = username + msg;
+    Text msg = username + " has entered the chatroom.\n";
     chat_server.broadcastMessage(msg);
     chat_server.add_user(username, self);
   }
@@ -115,15 +109,16 @@ User {
         msg = username + ": " + msg;
         SendMessage(msg);
     }
-    Public Function add_to_server(TrueFalse inGame) {
-        AddUser(inGame);
+    Public Function add_to_server() {
+        AddUser();
     }
     Public Function quit() {
         Quit();
     }
     Public Function private_message(Text receiver, Text msg) {
         SendPrivate(receiver, msg);
-    } 
+    }
+
     Public Function print_users() {
         PrintUsers();
     }

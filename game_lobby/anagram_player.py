@@ -23,19 +23,20 @@ ANAGRAM_HEIGHT = 100
 class AnagramPlayer:
     
     def __init__(self, name):
+        self.name = name
         self.enter_waiting_room()
         self.initialize_game_window()
         self.player = Waldo.tcp_connect(Player, 'localhost', 6767, name, GUI_String_Ext(self.text_display), GUI_String_Ext(self.message_display))
         self.player.join_waiting_room()
-        self.text_display.AppendText("You have entered the anagram waiting room.\n")
+        self.text_display.AppendText("You have entered the anagram waiting room. Type /ready when you are ready to play.\n")
         
 
     def enter_waiting_room(self):
         app = App(False)
-        self.frame = Frame(None, -1, title = "Anagram Waiting Room", size = (CHAT_WINDOW_WIDTH, CHAT_WINDOW_HEIGHT))
+        self.frame = Frame(None, -1, title = self.name + "'s Anagram Waiting Room", size = (CHAT_WINDOW_WIDTH, CHAT_WINDOW_HEIGHT))
         self.text_display = TextCtrl(self.frame, size = (CHAT_WINDOW_WIDTH, MESSAGE_BOX_HEIGHT), style = TE_READONLY | TE_MULTILINE)
         self.text_input = TextCtrl(self.frame, style = TE_PROCESS_ENTER, pos = (0,CHAT_WINDOW_HEIGHT - TEXT_BOX_HEIGHT), size = (CHAT_WINDOW_WIDTH - BUTTON_WIDTH, TEXT_BOX_HEIGHT))
-        send_button = Button(self.frame, label = "Send", size = (BUTTON_WIDTH,TEXT_BOX_HEIGHT), pos = (CHAT_WINDOW_WIDTH - BUTTON_WIDTH, CHAT_WINDOW_HEIGHT - TEXT_BOX_HEIGHT))
+        send_button = Button(self.frame, label = "Send", size = (BUTTON_WIDTH, TEXT_BOX_HEIGHT), pos = (CHAT_WINDOW_WIDTH - BUTTON_WIDTH, CHAT_WINDOW_HEIGHT - TEXT_BOX_HEIGHT))
         self.text_input.Bind(EVT_TEXT_ENTER, self.read_waiting_room_message)    
         send_button.Bind(EVT_BUTTON, self.read_waiting_room_message)
         self.frame.Show(True)
@@ -46,7 +47,7 @@ class AnagramPlayer:
 
     def initialize_game_window(self):
         self.game_app = App(False)
-        self.game_frame = Frame(None, -1, title = "Anagram Game", size = (GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT))
+        self.game_frame = Frame(None, -1, title = self.name + "'s Anagram Game", size = (GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT))
         self.anagram_display = rt.RichTextCtrl(self.game_frame, size = (GAME_WINDOW_WIDTH, ANAGRAM_HEIGHT), style = TE_READONLY | TE_CENTRE)
         self.anagram_display.BeginFontSize(ANAGRAM_HEIGHT/2)
         self.message_display = TextCtrl(self.game_frame, size = (GAME_WINDOW_WIDTH, GAME_MESSAGE_BOX_HEIGHT), style = TE_READONLY | TE_MULTILINE, pos = (0, ANAGRAM_HEIGHT))
@@ -59,7 +60,6 @@ class AnagramPlayer:
     def display_game_window(self):
         self.game_frame.Show(True)
         self.message_display.AppendText("Waiting for game to begin...\n")   
-
 
     def send_answer(self, event):
         if self.player.game_in_session():
