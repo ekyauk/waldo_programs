@@ -58,4 +58,6 @@ if __name__ == '__main__':
         anagram_server.start_game()
         time.sleep(20)
         anagram_server.end_game()
+        time.sleep(WAITTIME/2)
+        anagram_server.restart_server()
     

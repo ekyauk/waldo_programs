@@ -12,6 +12,14 @@ Sequences {
   ReturnCertificate: UserLogin.doNothing -> UserLoginHelper.get_cert;
   ReturnSalt: UserLogin.doNothing -> UserLoginHelper.get_salt;
   CheckUser: UserLogin.doNothing -> UserLoginHelper.check_name;
+  ChangePassword: UserLogin.doNothing -> UserLoginHelper.change_pw;
+}
+
+Sequence ChangePassword(Text name, Text encrypt, Text hashed_pw) {
+    UserLogin.doNothing{}
+    UserLoginHelper.change_pw {
+        password_server.change_password(name, encrypt, hashed_pw);
+    }
 }
 
 Sequence ReturnSalt(Text name) returns Number salt {
@@ -35,10 +43,10 @@ Sequence CheckLogin(Text name, Text password) returns TrueFalse valid_combinatio
     }
 }
 
-Sequence RegisterUser(Text name, Text password, Text key, Text cert, Number salt) {
+Sequence RegisterUser(Text name, Text password, Text key, Text request, Number salt) {
     UserLogin.doNothing{}
     UserLoginHelper.check_database {
-        password_server.register_user(name, password, key, cert, salt);
+        password_server.register_user(name, password, key, request, salt);
     }
 }
 
@@ -79,6 +87,10 @@ UserLogin {
 
     Public Function get_salt(Text name) returns Number {
         return ReturnSalt(name);
+    }
+
+    Public Function change_password(Text name, Text encrypted_key, Text hashed_pw) {
+        ChangePassword(name, encrypted_key, hashed_pw);
     }
 }
 

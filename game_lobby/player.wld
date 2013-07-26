@@ -14,11 +14,19 @@ Sequences {
   SendToWaiting: Player.doNothing -> PlayerHelper.sendMessage;
   DisplayWaiting: PlayerHelper.doNothing -> Player.displayWaitingMessage;
   DisplayGame: PlayerHelper.doNothing -> Player.displayGameMessage;
+  CheckGameOver: Player.doNothing -> PlayerHelper.checkEnded;
 }
 
 Peered 
 {
   Text username;
+}
+
+Sequence CheckGameOver() returns TrueFalse game_over {
+    Player.doNothing{}
+    PlayerHelper.checkEnded {
+        game_over = game_server.game_ended;
+    }
 }
 
 Sequence GetAnagram() returns Text anagram {
@@ -106,6 +114,10 @@ Player {
         username = name;
         extAssign waiting_gui to waiting_message;
         extAssign game_gui to game_message;
+    }
+
+    Public Function game_ended() returns TrueFalse {
+        return CheckGameOver();
     }
 
     Public Function check_answer(Text answer) {

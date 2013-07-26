@@ -4,7 +4,7 @@ from server_emitted import Server
 from player_emitted import Player
 from anagram_player import AnagramPlayer
 from gui_string import GUI_String_Ext
-from login import LoginWindow
+from login import LoginWindow, MenuWindow
 from wx import *
 import sys, os, time
 sys.path.append(os.path.join("../../"))
@@ -66,7 +66,7 @@ def on_register (event):
             salt = Waldo.salt()
             password = register_info[1]
             password_hashed = Waldo.hash(password, salt)
-            user_login.register_user(name, password, Waldo.encrypt_keytext(key, password_hashed), Waldo.get_cert_text(Waldo.get_certificate(name, KEY_MANAGER_HOST, KEY_MANAGER_PORT, key)), salt)
+            user_login.register_user(name, password_hashed, Waldo.encrypt_keytext(key, password_hashed), Waldo.generate_request(name, key), salt)
             login.login_mode()
             login.set_message("Account created! You can now login.")
         else:
@@ -74,14 +74,6 @@ def on_register (event):
     else:
         login.set_message("Passwords do not match.")
 
-def on_change_password(event):
-    login_info = login.get_login_info()
-    if user_login.get_encrypted_key(login_info[0], login_info[1]) != "":
-        login.clear_password()
-        user_login.get_salt(login_info[0])
-        login.set_message("Enter your new password.")
-    else:
-        login.set_message("Username/password combination was not found.")
 
 def login_user():
     global user_login
@@ -92,6 +84,27 @@ def login_user():
     login.mainloop()
     if name == "":
         exit(0)
+
+def menu_window():
+    global menu
+    menu = MenuWindow()
+    menu.bind_options(connect_user, on_change_password)
+    menu.mainloop()
+
+def on_change_password(event):
+    password_info = menu.get_password_info() #contains tuple (current password, new password, new password)
+    cur_password = password_info[0]
+    if user_login.get_encrypted_key(name, cur_password) != "":
+        if password_info[1] == password_info[2]:
+            new_password = password_info[1]
+            salt = user_login.get_salt(name)
+            new_pw_hash = Waldo.hash(new_password, salt)
+            user_login.change_password(name, Waldo.encrypt_keytext(key, new_pw_hash), new_pw_hash)
+            menu.set_message("Password has been changed.")
+        else:
+            menu.set_message("New passwords do not match.")
+    else:
+        menu.set_message("Username/password combination was not found.")
 
 
 def connect_user():
@@ -142,4 +155,4 @@ def send_message(event):
 
 if __name__ == '__main__':
     login_user()
-    connect_user()
+    menu_window()

@@ -72,7 +72,7 @@ class AnagramPlayer:
             else:
                 self.message_display.AppendText("Word is not between 3 and 7 letters.\n")
 
-        else:
+        elif self.player.game_ended():
             self.message_display.AppendText('Remaining answers:\n')
             self.player.display_remaining_answers()
     

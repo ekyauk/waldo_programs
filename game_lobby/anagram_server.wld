@@ -12,9 +12,18 @@ AnagramServer {
   Map(from: Text, to: Struct player_data) game;
   List (element: Text) solutions;
   Text anagram;
+  TrueFalse game_over;
   TrueFalse game_in_session;
   onCreate() {
     game_in_session = False;
+  }
+
+  Public Function game_ended() returns TrueFalse {
+      return game_over;
+  }
+
+  Public Function restart_server() {
+      game_over = False;
   }
 
   Public Function set_solution(Text init_anagram, List (element: Text) solution){
@@ -97,6 +106,7 @@ AnagramServer {
 
   Public Function end_game() {
     game_in_session = False;
+    game_over = True;
     Text message = 'Game Over\n';
     for (Text username in game) {
         message += username + ' - ' + toText(game[username].score) + '\n';
