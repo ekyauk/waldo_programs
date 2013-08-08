@@ -23,7 +23,7 @@ CHAT_WINDOW_HEIGHT = 500
 MESSAGE_BOX_HEIGHT = 450
 KEY_TEXT_FILE = "user_key.pem"
 CERT_TEXT_FILE = "user_cert.pem"
-
+MIN_PASSWORD_LENGTH = 6
 KEY_MANAGER_HOST = '127.0.0.1'
 KEY_MANAGER_PORT = 6974
 
@@ -59,7 +59,13 @@ def on_login (event):
         
 def on_register (event):
     register_info = login.get_register_info() #contains tuple (username, password, password)
-    if register_info[1] == register_info[2]:
+    if register_info[1] != register_info[2]:
+        login.set_message("Passwords do not match.")
+    elif len(register_info[1]) < MIN_PASSWORD_LENGTH:
+        login.set_message("Password length must be at least 6 characters long.")
+    elif register_info[0] == "":
+        login.set_message("Please enter a username.")
+    else:
         name = register_info[0]
         if user_login.unique_username(name):
             key = Waldo.get_key()
@@ -71,8 +77,7 @@ def on_register (event):
             login.set_message("Account created! You can now login.")
         else:
             login.set_message("Username is already used.")
-    else:
-        login.set_message("Passwords do not match.")
+
 
 
 def login_user():

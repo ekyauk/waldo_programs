@@ -12,9 +12,6 @@ SOLUTION_START_INDEX = 1
 
 global solution_set
 
-def print_message (endpoint, message):
-    print message
-
 def load_solutions():
     solution_file = open(FILENAME, 'r', 0)
     solutions = solution_file.read().splitlines()
@@ -41,7 +38,7 @@ def set_solutions(anagram_server):
 if __name__ == '__main__':
     anagram_server = Waldo.no_partner_create(AnagramServer)
     print 'GameServer created!'
-    Waldo.tcp_accept(PlayerHelper, 'localhost', 6767, anagram_server)
+    Waldo.tcp_accept(PlayerHelper, HOSTNAME, 6767, anagram_server)
     load_solutions()
     while True:
         print 'Waiting for players....'

@@ -28,7 +28,6 @@ class AnagramPlayer:
         self.initialize_game_window()
         self.player = Waldo.tcp_connect(Player, HOSTNAME, 6767, name, GUI_String_Ext(self.text_display), GUI_String_Ext(self.message_display))
         self.player.join_waiting_room()
-        self.text_display.AppendText("You have entered the anagram waiting room. Type /ready when you are ready to play.\n")
         self.game_app.MainLoop()
         
 

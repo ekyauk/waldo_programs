@@ -160,6 +160,7 @@ Player {
     }
     Public Function join_waiting_room() {
         JoinWaiting();
+        DisplayWaiting("You have entered the anagram waiting room.  Type /ready when you are ready to play.\n");
     }
 
     Public Function leave_waiting() {
